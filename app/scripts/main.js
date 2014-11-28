@@ -12,21 +12,39 @@ require.config({
 });
 
 require(['pocket-api', 'oauthpopup'], function(pocket){
+
   // Get a token and assign behaviour to button
   pocket.getRequestToken(function(err, data) {
-    $('#authBtn').click(function(evt){
-      evt.preventDefault;
-      var token = data.code;
-      console.log('Click!');
-      $.oauthpopup({
-          path: 'https://getpocket.com/auth/authorize?request_token='+data.code+'&redirect_uri=http://play.fm.to.it/ReadsViz/close.html',
-          callback: function()
-          {
-              console.log('User has authenticated');
-              //do callback stuff
-          }
-      });
-      //window.open('https://getpocket.com/auth/authorize?request_token='+data.code+'&redirect_uri='+window.location, "popupWindow", "width=600,height=600,scrollbars=yes");
-    })
+    if(err) {
+      console.log('Failed to retrieve request token');
+      $('#authBtn').removeClass('btn-primary').addClass('btn-danger').html('Error retriving request token')
+    } else {
+      var requestToken = data.code;
+      $('#authBtn').click(function(evt){
+        evt.preventDefault;
+        $.oauthpopup({
+            path: 'https://getpocket.com/auth/authorize?request_token='+requestToken+'&redirect_uri=http://play.fm.to.it/ReadsViz/close.html',
+            callback: function() {
+                console.log('User has authenticated');
+                pocket.getAccessToken(requestToken, function(err, data2){
+                  if(err) {
+
+                  } else {
+                    //data2.username is the username
+                    //data2.access_token
+                    console.log(data2);
+                    pocket.getReadsList(data2.access_token, function(err, data3){
+                      if (err) {
+
+                      } else {
+                        console.log(data3);
+                      }
+                    })
+                  }
+                });
+            }
+        });
+      })
+    }
   });
 });
