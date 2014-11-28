@@ -1,0 +1,11 @@
+{
+  "name": "yeoman-test",
+  "private": true,
+  "dependencies": {
+    "bootstrap-sass-official": "~3.2.0",
+    "modernizr": "~2.8.2",
+    "requirejs": "~2.1.15",
+    "jquery": "~2.1.1",
+    "d3": "~3.4.13"
+  }
+}
