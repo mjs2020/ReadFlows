@@ -26,7 +26,27 @@ git clone https://github.com/mjs2020/pocketviz
 
 ### Get the dependencies
 
+Install the node modue dependencies
+```bash
+npm install
+bower install
+```
+
+### Configure
+You will need to create an app in Pocket to get an API key and run this on your own server.
+
+1. Log in to pocket: http://getpocket.com/login
+2. Go to http://getpocket.com/developer/apps/new create an app. The app needs "retrieve" permission.
+3. Get the consumer key for your new app.
+4. Edit the file ```app/config.php``` in your favourite text editor, add the consumer key and the URL to the callback.html file on your own server.
+
 ### Build
+
+To build the app run:
+```bash
+grunt build
+```
+It will create a ```dist``` subfolder.
 
 ### Deploy
 
