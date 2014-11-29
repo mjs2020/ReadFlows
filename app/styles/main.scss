@@ -1,6 +1,4 @@
-$icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
 // bower:scss
-@import "bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
 // endbower
 
 .browsehappy {
@@ -52,6 +50,7 @@ body {
 .jumbotron {
   text-align: center;
   border-bottom: 1px solid #e5e5e5;
+
   .btn {
     font-size: 21px;
     padding: 14px 24px;
@@ -61,6 +60,7 @@ body {
 /* Supporting marketing content */
 .marketing {
   margin: 40px 0;
+
   p + h4 {
     margin-top: 28px;
   }
@@ -81,7 +81,7 @@ body {
   }
 
   /* Space out the masthead */
-  .header {
+ .header {
     margin-bottom: 30px;
   }
 

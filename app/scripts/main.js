@@ -1,50 +1,74 @@
-'use strict';
-
-// TODO: Find a better name for the viz
-// TODO: Find an icon
-
+/*jshint unused: vars */
 require.config({
-  baseUrl: 'scripts',
   paths: {
-    'pocket-api': 'pocket-api',
-    'oauthpopup': 'oauthpopup',
-  }
+    angular: '../../bower_components/angular/angular',
+    'angular-animate': '../../bower_components/angular-animate/angular-animate',
+    'angular-aria': '../../bower_components/angular-aria/angular-aria',
+    'angular-cookies': '../../bower_components/angular-cookies/angular-cookies',
+    'angular-messages': '../../bower_components/angular-messages/angular-messages',
+    'angular-mocks': '../../bower_components/angular-mocks/angular-mocks',
+    'angular-resource': '../../bower_components/angular-resource/angular-resource',
+    'angular-route': '../../bower_components/angular-route/angular-route',
+    'angular-sanitize': '../../bower_components/angular-sanitize/angular-sanitize',
+    'angular-scenario': '../../bower_components/angular-scenario/angular-scenario',
+    'angular-touch': '../../bower_components/angular-touch/angular-touch',
+    bootstrap: '../../bower_components/bootstrap/dist/js/bootstrap'
+  },
+  shim: {
+    angular: {
+      exports: 'angular'
+    },
+    'angular-route': [
+      'angular'
+    ],
+    'angular-cookies': [
+      'angular'
+    ],
+    'angular-sanitize': [
+      'angular'
+    ],
+    'angular-resource': [
+      'angular'
+    ],
+    'angular-animate': [
+      'angular'
+    ],
+    'angular-touch': [
+      'angular'
+    ],
+    'angular-mocks': {
+      deps: [
+        'angular'
+      ],
+      exports: 'angular.mock'
+    }
+  },
+  priority: [
+    'angular'
+  ],
+  packages: [
+
+  ]
 });
 
-require(['pocket-api', 'oauthpopup'], function(pocket){
+//http://code.angularjs.org/1.2.1/docs/guide/bootstrap#overview_deferred-bootstrap
+window.name = 'NG_DEFER_BOOTSTRAP!';
 
-  // Get a token and assign behaviour to button
-  pocket.getRequestToken(function(err, data) {
-    if(err) {
-      console.log('Failed to retrieve request token');
-      $('#authBtn').removeClass('btn-primary').addClass('btn-danger').html('Error retriving request token')
-    } else {
-      var requestToken = data.code;
-      $('#authBtn').click(function(evt){
-        evt.preventDefault;
-        $.oauthpopup({
-            path: 'https://getpocket.com/auth/authorize?request_token='+requestToken+'&redirect_uri=http://play.fm.to.it/ReadsViz/close.html',
-            callback: function() {
-                console.log('User has authenticated');
-                pocket.getAccessToken(requestToken, function(err, data2){
-                  if(err) {
-
-                  } else {
-                    //data2.username is the username
-                    //data2.access_token
-                    console.log(data2);
-                    pocket.getReadsList(data2.access_token, function(err, data3){
-                      if (err) {
-
-                      } else {
-                        console.log(data3);
-                      }
-                    })
-                  }
-                });
-            }
-        });
-      })
-    }
+require([
+  'angular',
+  'app',
+  'angular-route',
+  'angular-cookies',
+  'angular-sanitize',
+  'angular-resource',
+  'angular-animate',
+  'angular-touch'
+], function(angular, app, ngRoutes, ngCookies, ngSanitize, ngResource, ngAnimate, ngTouch) {
+  'use strict';
+  /* jshint ignore:start */
+  var $html = angular.element(document.getElementsByTagName('html')[0]);
+  /* jshint ignore:end */
+  angular.element().ready(function() {
+    angular.resumeBootstrap([app.name]);
   });
 });
