@@ -1,5 +1,5 @@
 /*jshint unused: vars */
-define(['angular']/*deps*/, function (angular)/*invoke*/ {
+define(['angular', 'controllers/main', 'controllers/about', 'controllers/credits', 'controllers/privacy']/*deps*/, function (angular, MainCtrl, AboutCtrl, CreditsCtrl, PrivacyCtrl)/*invoke*/ {
   'use strict';
 
   /**
@@ -11,24 +11,41 @@ define(['angular']/*deps*/, function (angular)/*invoke*/ {
    * Main module of the application.
    */
   return angular
-    .module('pocketvizApp', [/*angJSDeps*/
-    'ngCookies',
-    'ngAria',
-    'ngMessages',
-    'ngResource',
-    'ngSanitize',
-    'ngRoute',
-    'ngAnimate',
-    'ngTouch'
-  ])
+    .module('pocketvizApp', [
+      'pocketvizApp.controllers.MainCtrl',
+      'pocketvizApp.controllers.AboutCtrl',
+      'pocketvizApp.controllers.CreditsCtrl',
+      'pocketvizApp.controllers.PrivacyCtrl',
+      /*angJSDeps*/
+      'ngCookies',
+      'ngAria',
+      'ngMessages',
+      'ngResource',
+      'ngSanitize',
+      'ngRoute',
+      'ngAnimate',
+      'ngTouch'
+    ])
     .config(function ($routeProvider) {
       $routeProvider
         .when('/', {
           templateUrl: 'views/main.html',
           controller: 'MainCtrl'
         })
-        .otherwise({
-          redirectTo: '/'
-        });
+        .when('/about', {
+          templateUrl: 'views/about.html',
+          controller: 'AboutCtrl'
+        })
+        .when('/credits', {
+          templateUrl: 'views/credits.html',
+          controller: 'CreditsCtrl'
+        })
+        .when('/privacy', {
+          templateUrl: 'views/privacy.html',
+          controller: 'PrivacyCtrl'
+        })
+//        .otherwise({
+//          redirectTo: '/'
+//        });
     });
 });
