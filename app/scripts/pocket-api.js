@@ -1,4 +1,4 @@
-define(['jquery', 'jquery-cookie'], function($) {
+define(['jquery', 'lodash', 'jquery-cookie'], function($, _) {
 
   // For development only:
   var baseUrl = 'http://play.fm.to.it/pocketviz/';
@@ -13,7 +13,7 @@ define(['jquery', 'jquery-cookie'], function($) {
           callback(null, response);
         },
         error: function (xhr, status) {
-          console.log('Failed to get requestToken');
+          console.log('ERR16 Failed to get requestToken');
           callback(status, null);
         }
       });
@@ -24,44 +24,41 @@ define(['jquery', 'jquery-cookie'], function($) {
         url: baseUrl+'proxy.php?a=getAccessToken&code='+requestToken,
         success: function (response) {
           $.removeCookie('requestToken');                                   // remove cookie requestToken
-          $.cookie('accessToken', response, { expires: 30, path: '/' });    // set cookie accessToken
+          $.cookie('accessToken', response.access_token, { expires: 30, path: '/' });    // set cookie accessToken
           callback(null, response);
         },
         error: function (xhr, status) {
-          console.log('Failed to get accessToken');
+          console.log('ERR31 Failed to get accessToken');
           callback(status, null);
         }
       });
     },
 
     getReadsList : function(accessToken, callback) {
-      var url = baseUrl+'proxy.php?a=getReadsList&accessToken='+accessToken;
-
-      var readsData = JSON.parse(localStorage.getItem('readsData'));        // check what's in localStorage
-      if (readsData) {                                                      // get the biggest timestamp in localstorage
-        var lastTimestamp = readsData.reduceRight(function (max, test, i, a) {
-          // TODO check naming of time_added
-          if (max < test.time_added) {
-            return test.time_added;
-          } else {
-            return max;
-          }
-        }, 0)
-        url = url+'&since='+lastTimestamp;                                  // append timestamp to url
-      }
+      var url = baseUrl+'proxy.php?a=getReadsList&accessToken='+accessToken,
+          lastUpdate = localStorage.getItem('pocketviz.lastUpdate'),
+          localData = JSON.parse(localStorage.getItem('pocketviz.readsList'));
+      // If we already have data stored in localStorage just fetch updates by appending since parameter to the request
+      if (lastUpdate) url = url+'&since='+lastUpdate;
 
       $.ajax({
         url: url,
         success: function (response) {
-          if (readsData) {
-            localStorage.setItem('readsData', JSON.stringify(readsData.concat(response))) // concat and store
+          if (lastUpdate) {
+            localData = _.extend(localData, response.list);
+            console.log('Fetched an update. '+_.size(response.list)+' new reads being added. New total number of items: '+_.size(localData));
+            localData = JSON.stringify(localData);
           } else {
-            localStorage.setItem('readsData', JSON.stringify(response));      // store the result in localstorage
+            localData = JSON.stringify(response.list);
+            console.log('Fetched full reading list. '+_.size(response.list)+' reads stored.');
           }
+          localStorage.setItem('pocketviz.readsList', localData);
+          localStorage.setItem('pocketviz.lastUpdate', response.since);
           callback(null);
         },
         error: function (xhr, status) {
-          console.log('Failed to get list of reads');
+          // TODO handle error?
+          console.log('ERR58 Failed to get list of reads');
           callback(status);
         }
       });
