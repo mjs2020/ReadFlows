@@ -6,3 +6,4 @@ bower_components
 .brackets.json
 app/styles/*.css
 app/styles/*.map
+app/scripts/piwik.js
