@@ -1,6 +1,18 @@
-/*jshint unused: vars */
-require.config({
-  paths: {
+var tests = [];
+for (var file in window.__karma__.files) {
+  if (window.__karma__.files.hasOwnProperty(file)) {
+    // Removed "Spec" naming from files
+    if (/Spec\.js$/.test(file)) {
+      tests.push(file);
+    }
+  }
+}
+
+requirejs.config({
+    // Karma serves files from '/base'
+    baseUrl: '/base/app/scripts',
+
+    paths: {
     angular: '../../bower_components/angular/angular',
     'angular-animate': '../../bower_components/angular-animate/angular-animate',
     'angular-aria': '../../bower_components/angular-aria/angular-aria',
@@ -23,74 +35,24 @@ require.config({
     modernizr: '../../bower_components/modernizr/modernizr',
     'requirejs-text': '../../bower_components/requirejs-text/text'
   },
-  shim: {
-    angular: {
-      exports: 'angular'
+
+    shim: {
+        'angular' : {'exports' : 'angular'},
+        'angular-route': ['angular'],
+        'angular-cookies': ['angular'],
+        'angular-sanitize': ['angular'],
+        'angular-resource': ['angular'],
+        'angular-animate': ['angular'],
+        'angular-touch': ['angular'],
+        'angular-mocks': {
+          deps:['angular'],
+          'exports':'angular.mock'
+        }
     },
-    'angular-route': [
-      'angular'
-    ],
-    'angular-aria': [
-      'angular'
-    ],
-    'angular-messages': [
-      'angular'
-    ],
-    'angular-cookies': [
-      'angular'
-    ],
-    'angular-sanitize': [
-      'angular'
-    ],
-    'angular-resource': [
-      'angular'
-    ],
-    'angular-animate': [
-      'angular'
-    ],
-    'angular-touch': [
-      'angular'
-    ],
-    'angular-mocks': {
-      deps: [
-        'angular'
-      ],
-      exports: 'angular.mock'
-    },
-    bootstrap: {
-      deps: [
-        'jquery'
-      ]
-    }
-  },
-  priority: [
-    'angular'
-  ],
-  packages: [
 
-  ]
-});
+    // ask Require.js to load these files (all our tests)
+    deps: tests,
 
-//http://code.angularjs.org/1.2.1/docs/guide/bootstrap#overview_deferred-bootstrap
-window.name = 'NG_DEFER_BOOTSTRAP!';
-
-require([
-  'angular',
-  'app',
-  'angular-route',
-  'angular-cookies',
-  'angular-sanitize',
-  'angular-resource',
-  'angular-animate',
-  'angular-touch',
-  'angular-aria',
-  'angular-messages'
-], function(angular, app, ngRoutes, ngCookies, ngSanitize, ngResource, ngAnimate, ngTouch, ngAria, ngMessages) {
-  'use strict';
-  /* jshint ignore:start */
-  //var $html = angular.element(document.getElementsByTagName('html')[0]);
-  /* jshint ignore:end */
-  angular.element(document).ready(function() {
-    angular.resumeBootstrap([app.name]);
-  });
+    // start test run, once Require.js is done
+    callback: window.__karma__.start
 });

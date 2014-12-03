@@ -55,3 +55,7 @@ Upload the contents of the ```dist``` folder to your server and access it throug
 ## Licence
 
 PocketViz is free software licenced under the [GNU GPL](https://www.gnu.org/licenses/gpl.html) licence.
+
+## Credits
+Tools used: bootstrap, angular, d3
+The background image is by Dave Crosby @ Flickr (https://www.flickr.com/photos/wikidave/7747767144)

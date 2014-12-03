@@ -1,3 +1,5 @@
 {
-  "generator-mocha": {}
+  "generator-angular-require": {
+    "appPath": "app"
+  }
 }
