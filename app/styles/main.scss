@@ -64,6 +64,18 @@ body {
   font-weight: 200;
 }
 
+/* Main graph */
+#graph {
+  background: rgba(204, 204, 204, 0.80);
+  display: block;
+  position: absolute;
+  width: 100%;
+  top: 60px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
 
