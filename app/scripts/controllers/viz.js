@@ -17,7 +17,7 @@ define(['angular', 'jquery', 'd3'], function (angular, $, d3) {
                       .attr('id', 'svgCanvas')
                       .attr('width', '1000')
                       .attr('height', '600')
-                      .attr('viewbox', '0 0 1000 500')
+                      .attr('viewbox', '0 0 1000 600')
                       .attr('preserveAspectRatio', 'xMidYMid');
 
     // Assign behaviour in case of window resize (for responsiveness)
