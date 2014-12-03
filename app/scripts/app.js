@@ -1,5 +1,17 @@
 /*jshint unused: vars */
-define(['angular', 'controllers/main', 'controllers/about', 'controllers/credits', 'controllers/privacy']/*deps*/, function (angular, MainCtrl, AboutCtrl, CreditsCtrl, PrivacyCtrl)/*invoke*/ {
+define([
+  'angular',
+  'controllers/navbar',
+  'controllers/main',
+  'controllers/login',
+  'controllers/viz'
+], function (
+       angular,
+        NavbarCtrl,
+        MainCtrl,
+        LoginCtrl,
+        VizCtrl
+       ) {
   'use strict';
 
   /**
@@ -11,41 +23,37 @@ define(['angular', 'controllers/main', 'controllers/about', 'controllers/credits
    * Main module of the application.
    */
   return angular
-    .module('pocketvizApp', [
-      'pocketvizApp.controllers.MainCtrl',
-      'pocketvizApp.controllers.AboutCtrl',
-      'pocketvizApp.controllers.CreditsCtrl',
-      'pocketvizApp.controllers.PrivacyCtrl',
-      /*angJSDeps*/
-      'ngCookies',
-      'ngAria',
-      'ngMessages',
-      'ngResource',
-      'ngSanitize',
-      'ngRoute',
-      'ngAnimate',
-      'ngTouch'
-    ])
-    .config(function ($routeProvider) {
-      $routeProvider
-        .when('/', {
-          templateUrl: 'views/main.html',
-          controller: 'MainCtrl'
-        })
-        .when('/about', {
-          templateUrl: 'views/about.html',
-          controller: 'AboutCtrl'
-        })
-        .when('/credits', {
-          templateUrl: 'views/credits.html',
-          controller: 'CreditsCtrl'
-        })
-        .when('/privacy', {
-          templateUrl: 'views/privacy.html',
-          controller: 'PrivacyCtrl'
-        })
-//        .otherwise({
-//          redirectTo: '/'
-//        });
+  .module('pocketvizApp', [
+    'pocketvizApp.controllers.MainCtrl',
+    'pocketvizApp.controllers.NavbarCtrl',
+    'pocketvizApp.controllers.LoginCtrl',
+    'pocketvizApp.controllers.VizCtrl',
+    /*angJSDeps*/
+    'ngCookies',
+    'ngAria',
+    'ngMessages',
+    'ngResource',
+    'ngSanitize',
+    'ngRoute',
+    'ngAnimate',
+    'ngTouch'
+  ])
+  .config(function ($routeProvider) {
+    $routeProvider
+    .when('/', {
+      templateUrl: 'views/main.html',
+      controller: 'MainCtrl'
+    })
+    .when('/login', {
+      templateUrl: 'views/login.html',
+      controller: 'LoginCtrl'
+    })
+    .when('/viz', {
+      templateUrl: 'views/viz.html',
+      controller: 'VizCtrl'
+    })
+    .otherwise({
+      redirectTo: '/'
     });
+  });
 });
