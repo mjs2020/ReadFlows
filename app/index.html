@@ -20,14 +20,14 @@
 
   <body ng-app="pocketvizApp">
     <!--[if lt IE 10]>
-<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-<![endif]-->
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
 
     <!-- Add your site or application content here -->
     <div class="container-fluid">
       <div class="header">
 
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-default" role="navigation" ng-controller="NavbarCtrl">
           <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -37,18 +37,34 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="#">Pocket Reads</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" >
               <ul class="nav navbar-nav">
-                <li><a href="#about">About</a></li>
-                <li><a href="#credits">Credits</a></li>
-                <li><a href="#privacy">Privacy</a></li>
+                <li><a href="" ng-click="openModal('about')">About</a></li>
+                <li><a href="" ng-click="openModal('credits')">Credits</a></li>
+                <li><a href="" ng-click="openModal('privacy')">Privacy</a></li>
               </ul>
             </div><!-- /.navbar-collapse -->
           </div><!-- /.container-fluid -->
+
+          <div class="modal fade" id="navbarModal" tabindex="-1" role="dialog" aria-labelledby="modal dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                  <h4 class="modal-title" id="myModalLabel">{{ modalTitle }}</h4>
+                </div>
+                <div class="modal-body">
+                  {{ modalBody }}
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </nav>
       </div>
 
