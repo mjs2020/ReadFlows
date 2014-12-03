@@ -24,6 +24,7 @@
         "access_token" => $_GET['accessToken'],
         "state" => "all"
       );
+      if (isset($_GET['since'])) $data['since'] = $_GET['since'];
       break;
   }
 
@@ -45,6 +46,6 @@
 
 
   header('Content-Type: application/json;');
-  //header("Access-Control-Allow-Origin: *");               // Uncomment for development
+  header("Access-Control-Allow-Origin: *");               // Uncomment for development
   print $result;
 ?>
