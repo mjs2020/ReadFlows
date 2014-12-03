@@ -7,28 +7,28 @@ include 'config.php';                                     // Include the configu
 
 switch($_GET['a']) {                                      // Get what action we're trying to do
   case 'getRequestToken':
-  $url = 'https://getpocket.com/v3/oauth/request';
-  $data = array(
-    "consumer_key" => $config['consumer_key'],
-    "redirect_uri" => $config['redirect_uri']
-  );
-  break;
+    $url = 'https://getpocket.com/v3/oauth/request';
+    $data = array(
+      "consumer_key" => $config['consumer_key'],
+      "redirect_uri" => $config['redirect_uri']
+    );
+    break;
   case 'getAccessToken':
-  $url = 'https://getpocket.com/v3/oauth/authorize';
-  $data = array(
-    "consumer_key" => $config['consumer_key'],
-    "code" => $_GET['code']
-  );
-  break;
+    $url = 'https://getpocket.com/v3/oauth/authorize';
+    $data = array(
+      "consumer_key" => $config['consumer_key'],
+      "code" => $_GET['code']
+    );
+    break;
   case 'getReadsList':
-  $url = 'https://getpocket.com/v3/get';
-  $data = array(
-    "consumer_key" => $config['consumer_key'],
-    "access_token" => $_GET['accessToken'],
-    "state" => "all"
-  );
-  if (isset($_GET['since'])) $data['since'] = $_GET['since'];
-  break;
+    $url = 'https://getpocket.com/v3/get';
+    $data = array(
+      "consumer_key" => $config['consumer_key'],
+      "access_token" => $_GET['accessToken'],
+      "state" => "all"
+    );
+    if (isset($_GET['since'])) $data['since'] = $_GET['since'];
+    break;
 }
 
 
@@ -56,11 +56,14 @@ curl_close($curl);                                        // Close the request
 // Split header text into an array.
 $header_text = preg_split( '/[\r\n]+/', $header );
 
+foreach ( $header_text as $header ) {                     // Propagate headers to response.
+  if ( preg_match( '/^(?:Content-Type|Content-Language|Set-Cookie|Cache-Control|Content-Length|Expires|X-)/i', $header ) ) {
+    header( $header );
+  }
+}
+
 header("Access-Control-Allow-Origin: *");                 // Uncomment for development
 
-foreach ( $header_text as $header ) {                     // Propagate headers to response.
-  header( $header );
-}
 print $contents;
 
 ?>
