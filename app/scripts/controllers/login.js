@@ -27,7 +27,7 @@ define(['angular', 'pocket-api'], function (angular, pocket) {
       pocket.getAccessToken(requestToken, function (err, response) {
         // TODO handle error
         $scope.message = 'Loading read list...';
-        console.log('Retrieved and using accessToken: '+response.access_token);
+        if(DEBUG) console.log('Retrieved and using accessToken: '+response.access_token);
         pocket.getReadsList(response.access_token, function (err) {
           // TODO handle error
           window.location.hash = "/viz";

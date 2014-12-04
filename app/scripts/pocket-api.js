@@ -13,7 +13,7 @@ define(['jquery', 'lodash', 'jquery-cookie'], function($, _) {
           callback(null, response);
         },
         error: function (xhr, status) {
-          console.log('ERR16 Failed to get requestToken');
+          if(DEBUG) console.log('ERR16 Failed to get requestToken');
           callback(status, null);
         }
       });
@@ -28,7 +28,7 @@ define(['jquery', 'lodash', 'jquery-cookie'], function($, _) {
           callback(null, response);
         },
         error: function (xhr, status) {
-          console.log('ERR31 Failed to get accessToken');
+          if(DEBUG) console.log('ERR31 Failed to get accessToken');
           callback(status, null);
         }
       });
@@ -46,11 +46,11 @@ define(['jquery', 'lodash', 'jquery-cookie'], function($, _) {
         success: function (response) {
           if (lastUpdate) {
             localData = _.extend(localData, response.list);
-            console.log('Fetched an update. '+_.size(response.list)+' new reads being added. New total number of items: '+_.size(localData));
+            if(DEBUG) console.log('Fetched an update. '+_.size(response.list)+' new reads being added. New total number of items: '+_.size(localData));
             localData = JSON.stringify(localData);
           } else {
             localData = JSON.stringify(response.list);
-            console.log('Fetched full reading list. '+_.size(response.list)+' reads stored.');
+            if(DEBUG) console.log('Fetched full reading list. '+_.size(response.list)+' reads stored.');
           }
           localStorage.setItem('pocketviz.readsList', localData);
           localStorage.setItem('pocketviz.lastUpdate', response.since);
@@ -58,7 +58,7 @@ define(['jquery', 'lodash', 'jquery-cookie'], function($, _) {
         },
         error: function (xhr, status) {
           // TODO handle error?
-          console.log('ERR58 Failed to get list of reads');
+          if(DEBUG) console.log('ERR58 Failed to get list of reads');
           callback(status);
         }
       });

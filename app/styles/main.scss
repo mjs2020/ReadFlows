@@ -171,9 +171,11 @@ body {
   bottom: 10px;
   right: 10px;
   font-size: 30px;
-  i.icon-facebook-circled,
-  i.icon-twitter-circled-1 {
-    margin: 0;
+  a {
+    i.icon-facebook-circled:before,
+    i.icon-twitter-circled-1:before {
+      margin: 0;
+    }
   }
 }
 
@@ -197,6 +199,11 @@ body {
 
   z-index: -1;
 
+  #graph.loading {
+    background: url(../images/loader.gif) no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+  }
   #graph {
     width: 100%;
     padding: 0;

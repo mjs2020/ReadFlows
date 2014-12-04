@@ -88,9 +88,11 @@ require([
   'angular-messages'
 ], function(angular, app, ngRoutes, ngCookies, ngSanitize, ngResource, ngAnimate, ngTouch, ngAria, ngMessages) {
   'use strict';
+
   /* jshint ignore:start */
-  //var $html = angular.element(document.getElementsByTagName('html')[0]);
+  var $html = angular.element(document.getElementsByTagName('html')[0]);
   /* jshint ignore:end */
+
   angular.element(document).ready(function() {
     angular.resumeBootstrap([app.name]);
   });

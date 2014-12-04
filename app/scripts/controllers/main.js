@@ -14,8 +14,8 @@ define(['angular', 'pocket-api', 'jquery', 'jquery-cookie', 'oauthpopup'], funct
   .controller('MainCtrl', function ($scope) {
     // Check for localstorage and svg support with modernizr
     if(!Modernizr.localstorage || !Modernizr.svg) {
-      // emit alert
-      console.log('No localstorage support in browser!');
+      // TODO emit alert in UI
+      if(DEBUG) console.log('No localstorage support in browser!');
     }
 
     // Check authentication status
@@ -32,7 +32,7 @@ define(['angular', 'pocket-api', 'jquery', 'jquery-cookie', 'oauthpopup'], funct
         $.oauthpopup({
           path: 'https://getpocket.com/auth/authorize?request_token='+requestToken+'&redirect_uri='+baseUrl+'callback.html',
           callback: function oauthCallback () {
-            console.log('Popup closed, proceed to authenticating.');
+            if(DEBUG) console.log('Popup closed, proceed to authenticating.');
             window.location.hash = "/login";          // go to /login and get accessToken
           }
         });
