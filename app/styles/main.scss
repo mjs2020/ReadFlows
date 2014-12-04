@@ -14,6 +14,7 @@ body {
   background-size: cover;
   height: 100%;
   width: 100%;
+  overflow-y: hidden;
 }
 
 /* Custom page header */
@@ -65,15 +66,62 @@ body {
 }
 
 /* Main graph */
-#graph {
-  background: rgba(204, 204, 204, 0.80);
+#graphOuter {
   display: block;
   position: absolute;
-  width: 100%;
-  top: 60px;
+
+  top: 0px;
   bottom: 0px;
   left: 0px;
   right: 0px;
+
+  width: 100%;
+  height: 100%;
+
+  padding-top: 60px;
+
+  overflow-x: scroll;
+  overflow-y: hidden;
+
+  #graph {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    svg {
+      background: rgba(204, 204, 204, 0.80);
+    }
+  }
+
+  #svgCanvas {
+    margin: 0 16px;
+
+    .readblock {
+      color:#000000;
+      fill:#00508e;
+      fill-opacity:0.26178014;
+      fill-rule:nonzero;
+      stroke:#898989;
+      stroke-width:0.375;
+      stroke-miterlimit:4;
+      stroke-opacity:1;
+      stroke-dasharray:none;
+      stroke-dashoffset:0;
+      marker:none;
+      visibility:visible;
+      enable-background:accumulate
+    }
+  }
+
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+  }
+  .axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+  }
 }
 
 /* Responsive: Portrait tablets and up */
