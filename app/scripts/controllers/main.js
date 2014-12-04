@@ -12,8 +12,8 @@ define(['angular', 'pocket-api', 'jquery', 'jquery-cookie', 'oauthpopup'], funct
    */
   angular.module('pocketvizApp.controllers.MainCtrl', [])
   .controller('MainCtrl', function ($scope) {
-    // Check for localstorage support with modernizr
-    if(!Modernizr.localstorage) {
+    // Check for localstorage and svg support with modernizr
+    if(!Modernizr.localstorage || !Modernizr.svg) {
       // emit alert
       console.log('No localstorage support in browser!');
     }
