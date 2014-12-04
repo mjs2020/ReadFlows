@@ -1,6 +1,85 @@
 // bower:scss
 // endbower
 
+
+/* FONTS */
+@font-face {
+    font-family: 'montserratbold';
+    src: url('fonts/Montserrat-Bold-webfont.eot');
+    src: url('fonts/Montserrat-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/Montserrat-Bold-webfont.woff') format('woff'),
+         url('fonts/Montserrat-Bold-webfont.ttf') format('truetype'),
+         url('fonts/Montserrat-Bold-webfont.svg#montserratbold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'montserratregular';
+    src: url('fonts/Montserrat-Regular-webfont.eot');
+    src: url('fonts/Montserrat-Regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/Montserrat-Regular-webfont.woff') format('woff'),
+         url('fonts/Montserrat-Regular-webfont.ttf') format('truetype'),
+         url('fonts/Montserrat-Regular-webfont.svg#montserratregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+  font-family: 'myfont';
+  src: url('fonts/myfont.eot?72356548');
+  src: url('fonts/myfont.eot?72356548#iefix') format('embedded-opentype'),
+       url('fonts/myfont.woff?72356548') format('woff'),
+       url('fonts/myfont.ttf?72356548') format('truetype'),
+       url('fonts/myfont.svg?72356548#myfont') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+ [class^="icon-"]:before, [class*=" icon-"]:before {
+  font-family: "myfont";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+
+.icon-phone:before { content: '\e800'; } /* '' */
+.icon-linkedin-circled-1:before { content: '\e801'; } /* '' */
+.icon-cv:before { content: '\e802'; } /* '' */
+.icon-github-circled-1:before { content: '\e803'; } /* '' */
+.icon-mail:before { content: '\e804'; } /* '' */
+.icon-skype:before { content: '\e805'; } /* '' */
+.icon-lock:before { content: '\e806'; } /* '' */
+.icon-pocket:before { content: '\e807'; } /* '' */
+.icon-facebook-circled:before { content: '\e808'; } /* '' */
+.icon-location-circled:before { content: '\e80d'; } /* '' */
+.icon-twitter-circled-1:before { content: '\e811'; } /* '' */
+.icon-website:before { content: '\e812'; } /* '' */
+.icon-github:before { content: '\e816'; } /* '' */
+.icon-gplus:before { content: '\e819'; } /* '' */
+
 .browsehappy {
   margin: 0.2em 0;
   background: #ccc;
@@ -8,7 +87,10 @@
   padding: 0.2em 0;
 }
 
+
+
 body {
+  font-family: montserratregular, sans-serif;
   padding-bottom: 20px;
   background-image: url(../images/bg.jpg);
   background-size: cover;
@@ -19,11 +101,12 @@ body {
 
 /* Custom page header */
 .header {
+  // TODO Fix layering of menu and viz so that navbar remains usable
   .navbar {
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
     border: none;
-    background-color: rgba(255, 255, 255, 0.45);
+    background-color: rgba(255, 255, 255, 0.65);
 
     a:link,
     a:visited {
@@ -34,6 +117,10 @@ body {
     a:active {
       color: #222;
     }
+
+    .navbar-right {
+      padding-right: 95px;
+    }
   }
   /* Make the masthead heading the same height as the navigation */
   h3 {
@@ -43,7 +130,6 @@ body {
     padding-bottom: 19px;
   }
 }
-
 
 /* Main marketing message and sign up button */
 .jumbotron {
@@ -63,6 +149,14 @@ body {
   padding: 50px;
   font-size: 21px;
   font-weight: 200;
+}
+
+/* Social share */
+#socialShare {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 30px;
 }
 
 /* Main graph */
@@ -97,7 +191,7 @@ body {
 
     .readblock {
       color:#000000;
-      fill:#00508e;
+      fill:#123652;
       fill-opacity:0.26178014;
       fill-rule:nonzero;
       stroke:#898989;
@@ -119,8 +213,21 @@ body {
     shape-rendering: crispEdges;
   }
   .axis text {
-    font-family: sans-serif;
+    font-family: montserratbold, sans-serif;
     font-size: 11px;
+  }
+
+  #addedAxisYear .tick line,
+  #readAxisYear .tick line {
+    stroke: #5d5d5d;
+  }
+  #addedAxisMonth .tick line,
+  #readAxisMonth .tick line {
+    stroke: #464646;
+  }
+  #addedAxisDay .tick line,
+  #readAxisDay .tick line {
+    stroke: #1d1d1d;
   }
 }
 
