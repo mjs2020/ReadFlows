@@ -37,11 +37,21 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="#">PocketViz {{ username }}</a>
+              <a class="navbar-brand" href="#"><i class="icon-pocket"></i> PocketViz</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" >
+
+              <ul class="nav navbar-nav hidden" id="userMenu">
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Welcome {{ username }}<span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="/viz">Read patterns</a></li>
+                    <li><a href="/stats">Read statistics</a></li>
+                  </ul>
+                </li>
+              </ul>
 
               <ul class="nav navbar-nav navbar-right">
                 <li><a href="" ng-click="openModal('about')">About</a></li>
@@ -54,12 +64,6 @@
           <div class="modal fade" id="navbarModal" tabindex="-1" role="dialog" aria-labelledby="modal dialog" aria-hidden="true">
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
-                <!--
-                <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                  <h4 class="modal-title" id="myModalLabel">{{ modalTitle }}</h4>
-                </div>
-                -->
                 <div class="modal-body" ng-bind-html="modalBody"></div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -93,8 +97,8 @@
 
     <!-- Share buttons -->
     <div id="socialShare">
-      <a data-toggle="tooltip" data-placement="top" class="mytooltip" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fplay.fm.to.it%2fpocketviz &t=Pocket+Reads+Visualization " title="Share me on Facebook"><i class="icon-facebook-circled"></i></a>
-      <a data-toggle="tooltip" data-placement="top" class="mytooltip" href="https://twitter.com/share?url=http%3a%2f%2fplay.fm.to.it%2fpocketviz &text=Pocket+Reads+Visualization " title="Share me on Twitter"><i class="icon-twitter-circled-1"></i></a>
+      <a data-toggle="tooltip" data-placement="top" class="mytooltip" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fplay.fm.to.it%2fpocketviz &t=Pocket+Reads+Visualization" title="Share me on Facebook"><i class="icon-facebook-circled"></i></a>
+      <a data-toggle="tooltip" data-placement="top" class="mytooltip" href="https://twitter.com/share?url=http%3a%2f%2fplay.fm.to.it%2fpocketviz &text=Pocket+Reads+Visualization" title="Share me on Twitter"><i class="icon-twitter-circled-1"></i></a>
     </div>
 
   </body>
