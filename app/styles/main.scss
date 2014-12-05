@@ -199,12 +199,7 @@ body {
 
   z-index: -1;
 
-  #graph.loading {
-    background: url(../images/loader.gif) no-repeat;
-    background-attachment: fixed;
-    background-position: center;
-  }
-  #graph {
+    #graph {
     width: 100%;
     padding: 0;
     margin: 0;
@@ -216,7 +211,7 @@ body {
   #svgCanvas {
     margin: 0 16px;
 
-    .readblock {
+    .readblock path {
       color:#000000;
       fill:#123652;
       fill-opacity:0.26178014;

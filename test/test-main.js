@@ -32,8 +32,10 @@ requirejs.config({
     'jquery-cookie': '../../bower_components/jquery-cookie/jquery.cookie',
     'pocket-api': 'pocket-api',
     oauthpopup: 'oauthpopup',
+    moment: '../../bower_components/momentjs/moment',
     modernizr: '../../bower_components/modernizr/modernizr',
-    'requirejs-text': '../../bower_components/requirejs-text/text'
+    'requirejs-text': '../../bower_components/requirejs-text/text',
+    momentjs: '../../bower_components/momentjs/moment'
   },
 
     shim: {

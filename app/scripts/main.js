@@ -12,17 +12,18 @@ require.config({
     'angular-sanitize': '../../bower_components/angular-sanitize/angular-sanitize',
     'angular-scenario': '../../bower_components/angular-scenario/angular-scenario',
     'angular-touch': '../../bower_components/angular-touch/angular-touch',
-    'text': '../../bower_components/requirejs-text/text',
-    'bootstrap': '../../bower_components/bootstrap/dist/js/bootstrap',
-    'd3': '../../bower_components/d3/d3',
-    'lodash': '../../bower_components/lodash/dist/lodash.compat',
-    'jquery': '../../bower_components/jquery/dist/jquery',
+    text: '../../bower_components/requirejs-text/text',
+    bootstrap: '../../bower_components/bootstrap/dist/js/bootstrap',
+    d3: '../../bower_components/d3/d3',
+    lodash: '../../bower_components/lodash/dist/lodash.compat',
+    jquery: '../../bower_components/jquery/dist/jquery',
     'jquery-cookie': '../../bower_components/jquery-cookie/jquery.cookie',
     'pocket-api': 'pocket-api',
-    'oauthpopup': 'oauthpopup',
-    'moment' : '../../bower_components/momentjs/moment',
-    'modernizr': '../../bower_components/modernizr/modernizr',
-    'requirejs-text': '../../bower_components/requirejs-text/text'
+    oauthpopup: 'oauthpopup',
+    moment: '../../bower_components/momentjs/moment',
+    modernizr: '../../bower_components/modernizr/modernizr',
+    'requirejs-text': '../../bower_components/requirejs-text/text',
+    momentjs: '../../bower_components/momentjs/moment'
   },
   shim: {
     angular: {
