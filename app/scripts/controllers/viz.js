@@ -1,4 +1,4 @@
-define(['angular', 'jquery', 'lodash', 'd3'], function (angular, $, _, d3) {
+define(['angular', 'jquery', 'moment', 'lodash', 'simple-statistics', 'd3', 'data'], function (angular, $, moment, _, ss, d3, data) {
   'use strict';
 
   /**
@@ -11,29 +11,93 @@ define(['angular', 'jquery', 'lodash', 'd3'], function (angular, $, _, d3) {
   angular.module('pocketvizApp.controllers.VizCtrl', [])
   .controller('VizCtrl', function ($scope) {
 
-    // Get the data to visualize
-    var readsList = _.toArray(JSON.parse(localStorage.getItem('pocketviz.readsList')));
+    // Get the data to visualize do some pre-processing
+    var stats = {
+          adds : {
+            maxPerDay: 0
+          },
+          reads : {
+            maxPerDay: 0
+          },
+          words : {
+            maxAddedPerDay : 0,
+            maxReadPerDay : 0
+          },
+          totalWords : 0,
+          longestRead : 0,
+          shortestRead : 0,
+          startTimestamp : moment().unix(),
+          endTimestamp : 0,
+          daysAddedCounter : {},
+          daysReadCounter : {}
+        },
+        readsList = _.chain(JSON.parse(localStorage.getItem('pocketviz.readsList')))
+                     .toArray()
+                     .sortBy(readsList, function (d) {
+                       return _.parseInt(d.time_added);
+                     })
+                     .map(function (d, i, l) {
+                       // Round timestamps to the day
+                       d.day_added = moment(_.parseInt(d.time_added)*1000).hours(0).minutes(0).seconds(0).unix();
+                       d.day_updated = moment(_.parseInt(d.time_updated)*1000).hours(0).minutes(0).seconds(0).unix();
+                       d.day_read = moment(_.parseInt(d.time_read)*1000).hours(0).minutes(0).seconds(0).unix();
+                       d.dayAddedId = moment(d.time_added*1000).format('YYMMDD');
+                       d.dayReadId = moment(d.time_read*1000).format('YYMMDD');
+
+                       // Add data to stats object
+                       stats.startTimestamp = Math.min(stats.startTimestamp, d.day_updated);
+                       stats.endTimestamp = Math.max(stats.endTimestamp, d.day_updated);
+                       // Init counter for day if this is the first item
+                       if (!stats.daysAddedCounter[d.dayAddedId]) stats.daysAddedCounter[d.dayAddedId] = {counter : 0, words : 0};
+                       if (!stats.daysReadCounter[d.dayReadId]) stats.daysReadCounter[d.dayReadId] = {counter : 0, words : 0};
+                       // Add offsets (words already in the day)
+                       d.addedWordOffset = stats.daysAddedCounter[d.dayAddedId].words;
+                       d.readWordOffset = stats.daysReadCounter[d.dayReadId].words;
+                       // Add all other stats
+                       stats.daysAddedCounter[d.dayAddedId].counter += 1;
+                       stats.daysReadCounter[d.dayReadId].counter += 1;
+                       stats.daysAddedCounter[d.dayAddedId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
+                       stats.daysReadCounter[d.dayReadId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
+                       stats.adds.maxPerDay = Math.max(stats.adds.maxPerDay, stats.daysAddedCounter[d.dayAddedId].counter);
+                       stats.words.maxAddedPerDay = Math.max(stats.words.maxAddedPerDay, stats.daysAddedCounter[d.dayAddedId].words);
+                       stats.reads.maxPerDay = Math.max(stats.reads.maxPerDay, stats.daysReadCounter[d.dayReadId].counter);
+                       stats.words.maxReadPerDay = Math.max(stats.words.maxReadPerDay, stats.daysReadCounter[d.dayReadId].words);
+                       stats.totalWords += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
+                       stats.longestRead = Math.max(stats.longestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
+                       stats.shortestRead = Math.min(stats.shortestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
+
+                       // Return the updated object
+                       return d;
+                     })
+                     .value();
+
+    // Do some statistics and filter out any outliers (basically batch additions for users who converted from readitlater to pocket)
+    stats.daysDataset = _.map(stats.daysAddedCounter, function (d, k, o) {
+                          return d.counter;
+                        });
+    stats.q3 = ss.quantile(stats.daysDataset, 0.75);
+    stats.iqr = ss.iqr(stats.daysDataset);
+    stats.k = 10;                             // Configurable parameter to remove outliers which distort the distribution
+    stats.threshold = stats.q3 + stats.k * (stats.iqr);
+    stats.excludeDays = [];
+    _.each(stats.daysAddedCounter, function (d, k, o) {
+      if (d.counter > stats.threshold) stats.excludeDays.push(k);
+    });
+    // Iterate through readsList and remove any reads that have dayAddedId matching any value in stats.excludeDays
+    readsList = _.filter(readsList, function (d, k, o) {
+      return _.contains(stats.excludeDays,d.dayAddedId);
+    });
+
 
     // Find the range of time from the first timestamp to the last timestamp in the dataset
-    var startTimestamp = d3.min(readsList, function (d) {
-          return d.time_updated;
-        }),
-        endTimestamp = d3.max(readsList, function (d) {
-          return d.time_updated;
-        }),
-        startTime = new Date(startTimestamp*1000),
-        endTime   = new Date(endTimestamp*1000),
-        longestRead = d3.max(readsList, function (d) {
-          return (parseInt(d.word_count) ? parseInt(d.word_count) : 0);
-        }),
-        shortestRead = d3.min(readsList, function (d) {
-          return (parseInt(d.word_count) ? parseInt(d.word_count) : 0);
-        });
+    stats.startTime = new Date(stats.startTimestamp*1000),
+    stats.endTime   = new Date(stats.endTimestamp*1000);
 
+    //------------------------------------------------------------------
     // Create #svgCanvas for the visualization
     // The width is calculated as number of days to visualize * 5px per day
-    var margin = {top: 30, right: 10, bottom: 30, left: 10},
-        svgWidth = Math.floor((endTimestamp - startTimestamp)/(60*60*24))*5,
+    var margin = {top: 20, right: 50, bottom: 20, left: 10},
+        svgWidth = Math.floor((stats.endTimestamp - stats.startTimestamp)/(60*60*24))*5,
         svgHeight = 600,
         graphWidth = svgWidth - margin.right - margin.left,
         graphHeight = svgHeight - margin.top - margin.bottom,
@@ -56,81 +120,192 @@ define(['angular', 'jquery', 'lodash', 'd3'], function (angular, $, _, d3) {
     $(window).on("resize", resizeCanvas);
     resizeCanvas();
 
-
     // DEBUG
-    console.log('readsList: ');
-    console.log(readsList);
-    console.log('number of articles in list: '+readsList.length);
-    console.log('total number of words :'+_.reduce(readsList, function (m, n) {
-      if (parseInt(n.word_count)) {
-        return m+parseInt(n.word_count);
-      } else {
-        return m;
-      }
-    }, 0));
-    console.log('startTimestamp value is: '+startTimestamp);
-    console.log('endTimestamp value is: '+endTimestamp);
-    console.log('startTime value is: '+startTime);
-    console.log('endTime value is: '+endTime);
-    console.log('longestRead is: '+longestRead);
-    console.log('shortestRead is: '+shortestRead);
+    if(DEBUG) {
+      console.log('readsList: ');
+      console.log(readsList);
+      console.log('stats: ');
+      console.log(stats);
+    }
 
-    // Create a xScale() function
+    // Create a xScale() and yScale() functions
     var xScale = d3.time.scale.utc()
                         .range([0, graphWidth-margin.left-margin.right])
-                        .domain([startTime, endTime]),
+                        .domain([stats.startTime, stats.endTime])
+                        .nice(),
         yScale = d3.scale.linear()
-                         .range([0, graphHeight/2])
-                         .domain([shortestRead, longestRead]);
+                         .range([0, (graphHeight-50)/2])
+                         .domain([0, stats.words.maxReadPerDay]);
 
     // Create the xAxis and draw them
     var xAxis = d3.svg.axis()
-                      .scale(xScale)
-                      .ticks(d3.time.month.utc, 1),
+                      .scale(xScale),
+        addedAxisYear = pocketviz.append("g")
+                                  .attr('id', 'addedAxisYear')
+                                  .attr("class", "axis")
+                                  .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
+                                  .call(xAxis.orient('top')
+                                             .ticks(d3.time.year.utc, 1)
+                                             .tickFormat(d3.time.format('%Y'))
+                                             .innerTickSize(25)
+                                       )
+                                  .selectAll('text')
+                                  .attr('y', -17)
+                                  .attr('x', 5)
+                                  .attr('style', 'text-anchor: left'),
         addedAxisMonth = pocketviz.append("g")
                                   .attr('id', 'addedAxisMonth')
                                   .attr("class", "axis")
-                                  .attr('transform', 'translate('+margin.left+','+margin.top+')')
+                                  .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
                                   .call(xAxis.orient('top')
-                                            .tickFormat(d3.time.format('%b'))
-                                       ),
+                                             .ticks(d3.time.month.utc, 1)
+                                             .tickFormat(d3.time.format('%b'))
+                                             .innerTickSize(16)
+                                       )
+                                  .selectAll('text')
+                                  .attr('y', -7)
+                                  .attr('x', 5)
+                                  .attr('style', 'text-anchor: left'),
+        addedAxisDay = pocketviz.append("g")
+                                  .attr('id', 'addedAxisDay')
+                                  .attr("class", "axis")
+                                  .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
+                                  .call(xAxis.orient('top')
+                                             .ticks(d3.time.day.utc, 1)
+                                             .tickFormat(d3.time.format(''))
+                                             .innerTickSize(5)
+                                       )
+                                  .selectAll('text')
+                                  .remove(),
+        readAxisYear = pocketviz.append("g")
+                                 .attr('id', 'readAxisYear')
+                                 .attr("class", "axis")
+                                 .attr('transform', 'translate('+margin.left+','+(graphHeight-margin.bottom)+')')
+                                 .call(xAxis.orient('bottom')
+                                            .ticks(d3.time.year.utc, 1)
+                                            .tickFormat(d3.time.format('%Y'))
+                                            .innerTickSize(25)
+                                      )
+                                 .selectAll('text')
+                                 .attr('y', 17)
+                                 .attr('x', 5)
+                                 .attr('style', 'text-anchor: left'),
         readAxisMonth = pocketviz.append("g")
                                  .attr('id', 'readAxisMonth')
                                  .attr("class", "axis")
-                                 .attr('transform', 'translate('+margin.left+','+graphHeight+')')
+                                 .attr('transform', 'translate('+margin.left+','+(graphHeight-margin.bottom)+')')
                                  .call(xAxis.orient('bottom')
+                                            .ticks(d3.time.month.utc, 1)
                                             .tickFormat(d3.time.format('%b'))
-                                      );
-    // TODO create axises for year and day
+                                            .innerTickSize(16)
+                                      )
+                                 .selectAll('text')
+                                 .attr('y', 7)
+                                 .attr('x', 5)
+                                 .attr('style', 'text-anchor: left'),
+        readAxisDay = pocketviz.append("g")
+                                 .attr('id', 'readAxisDay')
+                                 .attr("class", "axis")
+                                 .attr('transform', 'translate('+margin.left+','+(graphHeight-margin.bottom)+')')
+                                 .call(xAxis.orient('bottom')
+                                            .ticks(d3.time.day.utc, 1)
+                                            .tickFormat(d3.time.format(''))
+                                            .innerTickSize(5)
+                                      )
+                                 .selectAll('text')
+                                 .remove();
+
+    // TODO Add boxes to highlight adds and reads together with text
+
 
     // Plot added data
+
+    // TODO Draw bg rectangles and text
+
+    // Pre-process data to calculate positions for drawing
+    readsList = _.map(readsList, function (d) {
+      if (d.time_read == 0) {
+
+      } else {
+
+      }
+      d.points = {             // calculate values
+                   'addedRect': {
+                     x: 0,
+                     y: 0,
+                     w: 5,
+                     h: 0
+                   },
+                   'readRect': {
+                     x: 0,
+                     y: 0,
+                     w: 5,
+                     h: 0
+                   },
+                   'p1': {
+                     x: 0,
+                     y: 0
+                   },
+                   'p2': {
+                     cx1: 0,
+                     cy1: 0,
+                     cx2: 0,
+                     cy2: 0,
+                     x: 0,
+                     y: 0
+                   },
+                   'p3': {
+                     x: 0,
+                     y: 0
+                   },
+                   'p4': {
+                     cx1: 0,
+                     cy1: 0,
+                     cx2: 0,
+                     cy2: 0,
+                     x: 0,
+                     y: 0
+                   }
+                 }
+      return d;
+    });
+
+    // Draw the data
     var dataPlots = pocketviz.append("g")
                              .attr('id', 'dataPlots')
                              .attr('transform', 'translate('+margin.left+',0)')
-                             .selectAll('rect')
+                             .selectAll('g')
                              .data(readsList)
                              .enter()
                              .append('g')
                                .attr('class', 'readblock')
                                .attr('id', function (d) {
-                                 return d.item_id
-                               })
-                               .attr('transform', function (d) {
-                                 var date = new Date(d.time_added*1000),
-                                     pos = xScale(date),
-                                     topMargin = margin.top;
-                                 return 'translate('+pos+','+topMargin+')'
-                               })
-                             .append('rect')
-                               .attr("x", 0)
-                               .attr("y", 0)
-                               .attr("width", 5)
-                               .attr("height", function (d) {
-                                 return (parseInt(d.word_count) ? yScale(parseInt(d.word_count)) : 10)
+                                 return d.item_id;
                                });
-
-
-
+    dataPlots.append('path')
+             .attr('class', 'wave')
+             .attr("d", function (d) {    // the d3 line function does not help in this case so we generate the d attr directly here
+               var dStr = '';
+               // build the string
+               dStr += 'M ' + d.points.p1.x   + ',' + d.points.p1.y   + ' ';
+               dStr += 'C ' + d.points.p2.cx1 + ',' + d.points.p2.cy1 + ' ' + d.points.p2.cx2 + ',' + d.points.p2.cy2 + ' ' + d.points.p2.x + ',' + d.points.p2.y + ' ';
+               dStr += 'L ' + d.points.p3.x   + ',' + d.points.p3.y   + ' ';
+               dStr += 'C ' + d.points.p4.cx1 + ',' + d.points.p4.cy1 + ' ' + d.points.p4.cx2 + ',' + d.points.p4.cy2 + ' ' + d.points.p4.x + ',' + d.points.p4.y + ' ';
+               dStr += 'z';
+               return dStr;
+             });
+    dataPlots.append('rect')
+             .attr('class', 'added')
+             .attr('x', function (d) { return d.points.addedRect.x })
+             .attr('y', function (d) { return d.points.addedRect.y })
+             .attr('width', function (d) { return d.points.addedRect.w })
+             .attr('height', function (d) { return d.points.addedRect.h });
+    dataPlots.insert('rect',':first-child')
+             .attr('class', 'read')
+             .attr('x', function (d) { return d.points.addedRect.x })
+             .attr('y', function (d) { return d.points.addedRect.y })
+             .attr('width', function (d) { return d.points.addedRect.w })
+             .attr('height', function (d) { return d.points.addedRect.h });
 
 
 
