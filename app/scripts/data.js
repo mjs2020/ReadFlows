@@ -82,14 +82,16 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
       this.stats.iqr = ss.iqr(this.stats.daysDataset);
       this.stats.k = 10;                             // Configurable parameter to remove outliers which distort the distribution
       this.stats.threshold = this.stats.q3 + this.stats.k * (this.stats.iqr);
+
+      // Now that we have the threshold find which days need to be excluded
       this.stats.excludeDays = [];
       _.each(this.stats.daysAddedCounter, function (d, k, o) {
         if (d.counter > this.stats.threshold) this.stats.excludeDays.push(k);
       },this);
-      if (this.stats.excludeDays.lenght > 0) {
+      if (this.stats.excludeDays.length > 0) {
         // Iterate through readsList and remove any reads that have dayAddedId matching any value in stats.excludeDays
         this.readsList = _.filter(this.readsList, function (d, k, o) {
-          return _.contains(this.stats.excludeDays,d.dayAddedId);
+          return !_.contains(this.stats.excludeDays,d.dayAddedId);
         },this);
         // Then recompute stats
         this.computeStats();

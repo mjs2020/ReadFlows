@@ -16,6 +16,14 @@ define(['angular', 'jquery', 'lodash', 'd3', 'data'], function (angular, $, _, d
     data.computeStats();
     data.filterOutliers();
 
+    // DEBUG
+    if(DEBUG) {
+      console.log('readsList: ');
+      console.log(data.readsList);
+      console.log('stats: ');
+      console.log(data.stats);
+    }
+
     // Create #svgCanvas for the visualization
     // The width is calculated as number of days to visualize * 5px per day
     var margin = {top: 20, right: 50, bottom: 20, left: 10},
@@ -41,14 +49,6 @@ define(['angular', 'jquery', 'lodash', 'd3', 'data'], function (angular, $, _, d
         };
     $(window).on("resize", resizeCanvas);
     resizeCanvas();
-
-    // DEBUG
-    if(DEBUG) {
-      console.log('readsList: ');
-      console.log(data.readsList);
-      console.log('stats: ');
-      console.log(data.stats);
-    }
 
     // Create a xScale() and yScale() functions
     var xScale = d3.time.scale.utc()
