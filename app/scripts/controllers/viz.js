@@ -1,4 +1,4 @@
-define(['angular', 'jquery', 'moment', 'lodash', 'simple-statistics', 'd3', 'data'], function (angular, $, moment, _, ss, d3, data) {
+define(['angular', 'jquery', 'lodash', 'd3', 'data'], function (angular, $, _, d3, data) {
   'use strict';
 
   /**
@@ -12,92 +12,14 @@ define(['angular', 'jquery', 'moment', 'lodash', 'simple-statistics', 'd3', 'dat
   .controller('VizCtrl', function ($scope) {
 
     // Get the data to visualize do some pre-processing
-    var stats = {
-          adds : {
-            maxPerDay: 0
-          },
-          reads : {
-            maxPerDay: 0
-          },
-          words : {
-            maxAddedPerDay : 0,
-            maxReadPerDay : 0
-          },
-          totalWords : 0,
-          longestRead : 0,
-          shortestRead : 0,
-          startTimestamp : moment().unix(),
-          endTimestamp : 0,
-          daysAddedCounter : {},
-          daysReadCounter : {}
-        },
-        readsList = _.chain(JSON.parse(localStorage.getItem('pocketviz.readsList')))
-                     .toArray()
-                     .sortBy(readsList, function (d) {
-                       return _.parseInt(d.time_added);
-                     })
-                     .map(function (d, i, l) {
-                       // Round timestamps to the day
-                       d.day_added = moment(_.parseInt(d.time_added)*1000).hours(0).minutes(0).seconds(0).unix();
-                       d.day_updated = moment(_.parseInt(d.time_updated)*1000).hours(0).minutes(0).seconds(0).unix();
-                       d.day_read = moment(_.parseInt(d.time_read)*1000).hours(0).minutes(0).seconds(0).unix();
-                       d.dayAddedId = moment(d.time_added*1000).format('YYMMDD');
-                       d.dayReadId = moment(d.time_read*1000).format('YYMMDD');
+    data.getData();
+    data.computeStats();
+    data.filterOutliers();
 
-                       // Add data to stats object
-                       stats.startTimestamp = Math.min(stats.startTimestamp, d.day_updated);
-                       stats.endTimestamp = Math.max(stats.endTimestamp, d.day_updated);
-                       // Init counter for day if this is the first item
-                       if (!stats.daysAddedCounter[d.dayAddedId]) stats.daysAddedCounter[d.dayAddedId] = {counter : 0, words : 0};
-                       if (!stats.daysReadCounter[d.dayReadId]) stats.daysReadCounter[d.dayReadId] = {counter : 0, words : 0};
-                       // Add offsets (words already in the day)
-                       d.addedWordOffset = stats.daysAddedCounter[d.dayAddedId].words;
-                       d.readWordOffset = stats.daysReadCounter[d.dayReadId].words;
-                       // Add all other stats
-                       stats.daysAddedCounter[d.dayAddedId].counter += 1;
-                       stats.daysReadCounter[d.dayReadId].counter += 1;
-                       stats.daysAddedCounter[d.dayAddedId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
-                       stats.daysReadCounter[d.dayReadId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
-                       stats.adds.maxPerDay = Math.max(stats.adds.maxPerDay, stats.daysAddedCounter[d.dayAddedId].counter);
-                       stats.words.maxAddedPerDay = Math.max(stats.words.maxAddedPerDay, stats.daysAddedCounter[d.dayAddedId].words);
-                       stats.reads.maxPerDay = Math.max(stats.reads.maxPerDay, stats.daysReadCounter[d.dayReadId].counter);
-                       stats.words.maxReadPerDay = Math.max(stats.words.maxReadPerDay, stats.daysReadCounter[d.dayReadId].words);
-                       stats.totalWords += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
-                       stats.longestRead = Math.max(stats.longestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
-                       stats.shortestRead = Math.min(stats.shortestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
-
-                       // Return the updated object
-                       return d;
-                     })
-                     .value();
-
-    // Do some statistics and filter out any outliers (basically batch additions for users who converted from readitlater to pocket)
-    stats.daysDataset = _.map(stats.daysAddedCounter, function (d, k, o) {
-                          return d.counter;
-                        });
-    stats.q3 = ss.quantile(stats.daysDataset, 0.75);
-    stats.iqr = ss.iqr(stats.daysDataset);
-    stats.k = 10;                             // Configurable parameter to remove outliers which distort the distribution
-    stats.threshold = stats.q3 + stats.k * (stats.iqr);
-    stats.excludeDays = [];
-    _.each(stats.daysAddedCounter, function (d, k, o) {
-      if (d.counter > stats.threshold) stats.excludeDays.push(k);
-    });
-    // Iterate through readsList and remove any reads that have dayAddedId matching any value in stats.excludeDays
-    readsList = _.filter(readsList, function (d, k, o) {
-      return _.contains(stats.excludeDays,d.dayAddedId);
-    });
-
-
-    // Find the range of time from the first timestamp to the last timestamp in the dataset
-    stats.startTime = new Date(stats.startTimestamp*1000),
-    stats.endTime   = new Date(stats.endTimestamp*1000);
-
-    //------------------------------------------------------------------
     // Create #svgCanvas for the visualization
     // The width is calculated as number of days to visualize * 5px per day
     var margin = {top: 20, right: 50, bottom: 20, left: 10},
-        svgWidth = Math.floor((stats.endTimestamp - stats.startTimestamp)/(60*60*24))*5,
+        svgWidth = Math.floor((data.stats.endTimestamp - data.stats.startTimestamp)/(60*60*24))*5,
         svgHeight = 600,
         graphWidth = svgWidth - margin.right - margin.left,
         graphHeight = svgHeight - margin.top - margin.bottom,
@@ -123,19 +45,19 @@ define(['angular', 'jquery', 'moment', 'lodash', 'simple-statistics', 'd3', 'dat
     // DEBUG
     if(DEBUG) {
       console.log('readsList: ');
-      console.log(readsList);
+      console.log(data.readsList);
       console.log('stats: ');
-      console.log(stats);
+      console.log(data.stats);
     }
 
     // Create a xScale() and yScale() functions
     var xScale = d3.time.scale.utc()
                         .range([0, graphWidth-margin.left-margin.right])
-                        .domain([stats.startTime, stats.endTime])
+                        .domain([data.stats.startTime, data.stats.endTime])
                         .nice(),
         yScale = d3.scale.linear()
                          .range([0, (graphHeight-50)/2])
-                         .domain([0, stats.words.maxReadPerDay]);
+                         .domain([0, data.stats.words.maxReadPerDay]);
 
     // Create the xAxis and draw them
     var xAxis = d3.svg.axis()
@@ -223,50 +145,53 @@ define(['angular', 'jquery', 'moment', 'lodash', 'simple-statistics', 'd3', 'dat
     // TODO Draw bg rectangles and text
 
     // Pre-process data to calculate positions for drawing
-    readsList = _.map(readsList, function (d) {
+
+
+    // Process points
+    data.readsList = _.map(data.readsList, function (d) {
       if (d.time_read == 0) {
 
       } else {
 
       }
       d.points = {             // calculate values
-                   'addedRect': {
-                     x: 0,
-                     y: 0,
-                     w: 5,
-                     h: 0
-                   },
-                   'readRect': {
-                     x: 0,
-                     y: 0,
-                     w: 5,
-                     h: 0
-                   },
-                   'p1': {
-                     x: 0,
-                     y: 0
-                   },
-                   'p2': {
-                     cx1: 0,
-                     cy1: 0,
-                     cx2: 0,
-                     cy2: 0,
-                     x: 0,
-                     y: 0
-                   },
-                   'p3': {
-                     x: 0,
-                     y: 0
-                   },
-                   'p4': {
-                     cx1: 0,
-                     cy1: 0,
-                     cx2: 0,
-                     cy2: 0,
-                     x: 0,
-                     y: 0
-                   }
-                 }
+       'addedRect': {
+         x: 0,
+         y: 0,
+         w: 5,
+         h: 0
+       },
+       'readRect': {
+         x: 0,
+         y: 0,
+         w: 5,
+         h: 0
+       },
+       'p1': {
+         x: 0,
+         y: 0
+       },
+       'p2': {
+         cx1: 0,
+         cy1: 0,
+         cx2: 0,
+         cy2: 0,
+         x: 0,
+         y: 0
+       },
+       'p3': {
+         x: 0,
+         y: 0
+       },
+       'p4': {
+         cx1: 0,
+         cy1: 0,
+         cx2: 0,
+         cy2: 0,
+         x: 0,
+         y: 0
+       }
+     }
       return d;
     });
 
@@ -275,7 +200,7 @@ define(['angular', 'jquery', 'moment', 'lodash', 'simple-statistics', 'd3', 'dat
                              .attr('id', 'dataPlots')
                              .attr('transform', 'translate('+margin.left+',0)')
                              .selectAll('g')
-                             .data(readsList)
+                             .data(data.readsList)
                              .enter()
                              .append('g')
                                .attr('class', 'readblock')
