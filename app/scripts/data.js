@@ -52,6 +52,8 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
         // Add offsets (words already in the day)
         d.addedWordOffset = this.stats.daysAddedCounter[d.dayAddedId].words;
         d.readWordOffset = this.stats.daysReadCounter[d.dayReadId].words;
+        d.addedCountOffset = this.stats.daysAddedCounter[d.dayAddedId].count;
+        d.readCountOffset = this.stats.daysReadCounter[d.dayReadId].count;
         // Add all other stats
         this.stats.daysAddedCounter[d.dayAddedId].counter += 1;
         this.stats.daysReadCounter[d.dayReadId].counter += 1;

@@ -1,4 +1,4 @@
-define(['angular', 'jquery', 'lodash', 'd3', 'data'], function (angular, $, _, d3, data) {
+define(['angular', 'jquery', 'lodash', 'data', 'd3', 'd3tip'], function (angular, $, _, data, d3) {
   'use strict';
 
   /**
@@ -55,9 +55,12 @@ define(['angular', 'jquery', 'lodash', 'd3', 'data'], function (angular, $, _, d
                         .range([0, graphWidth-margin.left-margin.right])
                         .domain([data.stats.startTime, data.stats.endTime])
                         .nice(),
-        yScale = d3.scale.linear()
-                         .range([0, (graphHeight-50)/2])
-                         .domain([0, data.stats.words.maxReadPerDay]);
+        yScaleA = d3.scale.linear()
+                          .range([0, (graphHeight-50)/2])
+                          .domain([0, data.stats.words.maxAddedPerDay]),
+        yScaleR = d3.scale.linear()
+                          .range([0, (graphHeight-50)/2])
+                          .domain([0, data.stats.words.maxReadPerDay]);
 
     // Create the xAxis and draw them
     var xAxis = d3.svg.axis()
@@ -140,65 +143,63 @@ define(['angular', 'jquery', 'lodash', 'd3', 'data'], function (angular, $, _, d
     // TODO Add boxes to highlight adds and reads together with text
 
 
-    // Plot added data
-
-    // TODO Draw bg rectangles and text
-
-    // Pre-process data to calculate positions for drawing
-
+    // Add Tooltip
+    var tooltip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .html(function(d) {
+                      return d.resolved_title;
+                    })
+                    .offset([-12, 0]);
+    pocketviz.call(tooltip)
 
     // Process points
     data.readsList = _.map(data.readsList, function (d) {
-      if (d.time_read == 0) {
+      var unread = (d.time_read == '0');
+      // calculate values
+      d.points             = {};
+      d.points.addedRect   = {};
+      d.points.addedRect.x = xScale(new Date(_.parseInt(d.day_added)*1000));
+      d.points.addedRect.y = yScaleA(d.addedWordOffset);
+      d.points.addedRect.w = 5;
+      d.points.addedRect.h = yScaleA(_.parseInt(d.word_count));
 
-      } else {
+      d.points.readRect    = {};
+      d.points.readRect.x  = xScale(new Date(_.parseInt(d.day_read)*1000));
+      d.points.readRect.y  = 495-yScaleR(_.parseInt(d.word_count))-yScaleR(d.readWordOffset);
+      d.points.readRect.w  = 5;
+      d.points.readRect.h  = yScaleR(_.parseInt(d.word_count));
 
-      }
-      d.points = {             // calculate values
-       'addedRect': {
-         x: 0,
-         y: 0,
-         w: 5,
-         h: 0
-       },
-       'readRect': {
-         x: 0,
-         y: 0,
-         w: 5,
-         h: 0
-       },
-       'p1': {
-         x: 0,
-         y: 0
-       },
-       'p2': {
-         cx1: 0,
-         cy1: 0,
-         cx2: 0,
-         cy2: 0,
-         x: 0,
-         y: 0
-       },
-       'p3': {
-         x: 0,
-         y: 0
-       },
-       'p4': {
-         cx1: 0,
-         cy1: 0,
-         cx2: 0,
-         cy2: 0,
-         x: 0,
-         y: 0
-       }
-     }
+      d.points.p1          = {};
+      d.points.p1.x        = d.points.addedRect.x+d.points.addedRect.w;
+      d.points.p1.y        = d.points.addedRect.y;
+
+      d.points.p2          = {};
+      d.points.p2.x        = d.points.readRect.x;
+      d.points.p2.y        = d.points.readRect.y;
+      d.points.p2.cx1      = d.points.p1.x+(d.points.p2.x-d.points.p1.x)/2;
+      d.points.p2.cy1      = d.points.p2.y;
+      d.points.p2.cx2      = d.points.p2.x-(d.points.p2.x-d.points.p1.x)/3;
+      d.points.p2.cy2      = d.points.p2.y;
+
+      d.points.p3          = {};
+      d.points.p3.x        = d.points.readRect.x;
+      d.points.p3.y        = d.points.readRect.y + d.points.readRect.h;
+
+      d.points.p4          = {};
+      d.points.p4.x        = d.points.addedRect.x + d.points.readRect.w;
+      d.points.p4.y        = d.points.addedRect.y + d.points.addedRect.h;
+      d.points.p4.cx1      = d.points.p4.x+(d.points.p3.x-d.points.p4.x)/2;
+      d.points.p4.cy1      = d.points.p3.y;
+      d.points.p4.cx2      = d.points.p4.x+(d.points.p3.x-d.points.p4.x)/3;
+      d.points.p4.cy2      = d.points.p4.y;
+
       return d;
     });
 
     // Draw the data
     var dataPlots = pocketviz.append("g")
                              .attr('id', 'dataPlots')
-                             .attr('transform', 'translate('+margin.left+',0)')
+                             .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
                              .selectAll('g')
                              .data(data.readsList)
                              .enter()
@@ -218,19 +219,25 @@ define(['angular', 'jquery', 'lodash', 'd3', 'data'], function (angular, $, _, d
                dStr += 'C ' + d.points.p4.cx1 + ',' + d.points.p4.cy1 + ' ' + d.points.p4.cx2 + ',' + d.points.p4.cy2 + ' ' + d.points.p4.x + ',' + d.points.p4.y + ' ';
                dStr += 'z';
                return dStr;
-             });
+             })
+             .on('mouseover', tooltip.show)
+             .on('mouseout', tooltip.hide);;
     dataPlots.append('rect')
              .attr('class', 'added')
              .attr('x', function (d) { return d.points.addedRect.x })
              .attr('y', function (d) { return d.points.addedRect.y })
              .attr('width', function (d) { return d.points.addedRect.w })
-             .attr('height', function (d) { return d.points.addedRect.h });
+             .attr('height', function (d) { return d.points.addedRect.h })
+             .on('mouseover', tooltip.show)
+             .on('mouseout', tooltip.hide);
     dataPlots.insert('rect',':first-child')
              .attr('class', 'read')
-             .attr('x', function (d) { return d.points.addedRect.x })
-             .attr('y', function (d) { return d.points.addedRect.y })
-             .attr('width', function (d) { return d.points.addedRect.w })
-             .attr('height', function (d) { return d.points.addedRect.h });
+             .attr('x', function (d) { return d.points.readRect.x })
+             .attr('y', function (d) { return d.points.readRect.y })
+             .attr('width', function (d) { return d.points.readRect.w })
+             .attr('height', function (d) { return d.points.readRect.h })
+             .on('mouseover', tooltip.show)
+             .on('mouseout', tooltip.hide);
 
 
 
