@@ -15,6 +15,7 @@ require.config({
     'text': '../../bower_components/requirejs-text/text',
     'bootstrap': '../../bower_components/bootstrap/dist/js/bootstrap',
     'd3': '../../bower_components/d3/d3',
+    'd3tip': '../../bower_components/d3-tip/index',
     'lodash': '../../bower_components/lodash/dist/lodash.compat',
     'jquery': '../../bower_components/jquery/dist/jquery',
     'jquery-cookie': '../../bower_components/jquery-cookie/jquery.cookie',
@@ -62,6 +63,11 @@ require.config({
     'bootstrap': {
       deps: [
         'jquery'
+      ]
+    },
+    'd3tip': {
+      deps: [
+        'd3'
       ]
     },
     'simple-statistics': {

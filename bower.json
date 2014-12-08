@@ -24,11 +24,15 @@
     "requirejs-text": "~2.0.12",
     "momentjs": "~2.8.4",
     "svg-loaders": "*",
-    "simple-statistics": "~0.9.0"
+    "simple-statistics": "~0.9.0",
+    "d3-tip": "https://github.com/alanhamlett/d3-tip.git#b00920c2f243a7f96939486c5cd3865c2ebc32e5"
   },
   "devDependencies": {
     "angular-mocks": "^1.3.0",
     "angular-scenario": "^1.3.0"
   },
-  "appPath": "app"
+  "appPath": "app",
+  "resolutions": {
+    "d3-tip": "b00920c2f243a7f96939486c5cd3865c2ebc32e5"
+  }
 }

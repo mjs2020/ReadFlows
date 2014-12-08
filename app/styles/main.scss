@@ -27,14 +27,14 @@
   font-family: 'myfont';
   src: url('fonts/myfont.eot?57850621');
   src: url('fonts/myfont.eot?57850621#iefix') format('embedded-opentype'),
-       url('fonts/myfont.woff?57850621') format('woff'),
-       url('fonts/myfont.ttf?57850621') format('truetype'),
-       url('fonts/myfont.svg?57850621#myfont') format('svg');
+    url('fonts/myfont.woff?57850621') format('woff'),
+    url('fonts/myfont.ttf?57850621') format('truetype'),
+    url('fonts/myfont.svg?57850621#myfont') format('svg');
   font-weight: normal;
   font-style: normal;
 }
 
- [class^="icon-"]:before, [class*=" icon-"]:before {
+[class^="icon-"]:before, [class*=" icon-"]:before {
   font-family: "myfont";
   font-style: normal;
   font-weight: normal;
@@ -199,7 +199,7 @@ body {
 
   z-index: -1;
 
-    #graph {
+  #graph {
     width: 100%;
     padding: 0;
     margin: 0;
@@ -212,9 +212,18 @@ body {
     margin: 0 16px;
 
     .readblock path {
+      fill:#123652;
+      fill-opacity:0.25;
+      fill-rule:nonzero;
+      stroke: none;
+      marker:none;
+      visibility:visible;
+      enable-background:accumulate
+    }
+    .readblock rect {
       color:#000000;
       fill:#123652;
-      fill-opacity:0.26178014;
+      fill-opacity:0.25;
       fill-rule:nonzero;
       stroke:#898989;
       stroke-width:0.375;
@@ -251,6 +260,59 @@ body {
   #readAxisDay .tick line {
     stroke: #1d1d1d;
   }
+}
+
+
+/* D3 tip */
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+  pointer-events: none;
+}
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  position: absolute;
+  pointer-events: none;
+}
+/* Northward tooltips */
+.d3-tip.n:after {
+  content: "\25BC";
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+  text-align: center;
+}
+/* Eastward tooltips */
+.d3-tip.e:after {
+  content: "\25C0";
+  margin: -4px 0 0 0;
+  top: 50%;
+  left: -8px;
+}
+/* Southward tooltips */
+.d3-tip.s:after {
+  content: "\25B2";
+  margin: 0 0 1px 0;
+  top: -8px;
+  left: 0;
+  text-align: center;
+}
+/* Westward tooltips */
+.d3-tip.w:after {
+  content: "\25B6";
+  margin: -4px 0 0 -1px;
+  top: 50%;
+  left: 100%;
 }
 
 /* Responsive: Portrait tablets and up */
