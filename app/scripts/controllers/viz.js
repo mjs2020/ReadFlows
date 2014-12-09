@@ -25,12 +25,17 @@ define(['angular', 'jquery', 'lodash', 'data', 'd3', 'd3tip'], function (angular
     }
 
     // Create #svgCanvas for the visualization
-    // The width is calculated as number of days to visualize * 5px per day
+    // The width is calculated as number of days to visualize multiplied by the width for each day
+    // The day width is calculated in order to make the average block three times as thick as it's high
     var margin = {top: 20, right: 50, bottom: 20, left: 10},
-        svgWidth = Math.floor((data.stats.endTimestamp - data.stats.startTimestamp)/(60*60*24))*5,
         svgHeight = 600,
-        graphWidth = svgWidth - margin.right - margin.left,
         graphHeight = svgHeight - margin.top - margin.bottom,
+        yScale = d3.scale.linear()
+                         .range([0, (graphHeight-50)/2])
+                         .domain([0, Math.max(data.stats.words.maxAddedPerDay, data.stats.words.maxReadPerDay)]),
+        dayWidth = yScale(data.stats.words.averageLength)*3, // Approximate calculation
+        svgWidth = Math.floor((data.stats.endTimestamp - data.stats.startTimestamp)/(60*60*24))*dayWidth,
+        graphWidth = svgWidth - margin.right - margin.left,
         pocketviz = d3.select("#graph")
                       .append("svg")
                       .attr('id', 'svgCanvas')
@@ -160,13 +165,13 @@ define(['angular', 'jquery', 'lodash', 'data', 'd3', 'd3tip'], function (angular
       d.points.addedRect   = {};
       d.points.addedRect.x = xScale(new Date(_.parseInt(d.day_added)*1000));
       d.points.addedRect.y = yScaleA(d.addedWordOffset);
-      d.points.addedRect.w = 5;
+      d.points.addedRect.w = dayWidth;
       d.points.addedRect.h = yScaleA(_.parseInt(d.word_count));
 
       d.points.readRect    = {};
       d.points.readRect.x  = xScale(new Date(_.parseInt(d.day_read)*1000));
       d.points.readRect.y  = 495-yScaleR(_.parseInt(d.word_count))-yScaleR(d.readWordOffset);
-      d.points.readRect.w  = 5;
+      d.points.readRect.w  = dayWidth;
       d.points.readRect.h  = yScaleR(_.parseInt(d.word_count));
 
       d.points.p1          = {};
