@@ -159,7 +159,7 @@ define(['angular', 'jquery', 'lodash', 'data', 'd3', 'd3tip'], function (angular
 
     // Process points
     data.readsList = _.map(data.readsList, function (d) {
-      var unread = (d.time_read == '0');
+
       // calculate values
       d.points             = {};
       d.points.addedRect   = {};
@@ -225,6 +225,9 @@ define(['angular', 'jquery', 'lodash', 'data', 'd3', 'd3tip'], function (angular
                dStr += 'z';
                return dStr;
              })
+             .attr("visibility", function(d,i){
+               if(d.time_read == '0') return "hidden";
+             })
              .on('mouseover', tooltip.show)
              .on('mouseout', tooltip.hide);;
     dataPlots.append('rect')
@@ -237,6 +240,9 @@ define(['angular', 'jquery', 'lodash', 'data', 'd3', 'd3tip'], function (angular
              .on('mouseout', tooltip.hide);
     dataPlots.insert('rect',':first-child')
              .attr('class', 'read')
+             .attr("visibility", function(d,i){
+               if(d.time_read == '0') return "hidden";
+             })
              .attr('x', function (d) { return d.points.readRect.x })
              .attr('y', function (d) { return d.points.readRect.y })
              .attr('width', function (d) { return d.points.readRect.w })
@@ -244,6 +250,9 @@ define(['angular', 'jquery', 'lodash', 'data', 'd3', 'd3tip'], function (angular
              .on('mouseover', tooltip.show)
              .on('mouseout', tooltip.hide);
 
+    // Cleanup hidden stuff
+    d3.selectAll("rect[visibility=hidden]").remove();
+    d3.selectAll("path[visibility=hidden]").remove();
 
 
   });
