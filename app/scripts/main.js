@@ -19,6 +19,7 @@ require.config({
     'lodash': '../../bower_components/lodash/dist/lodash.compat',
     'jquery': '../../bower_components/jquery/dist/jquery',
     'jquery-cookie': '../../bower_components/jquery-cookie/jquery.cookie',
+    'jquery-mousewheel': '../../bower_components/jquery-mousewheel/jquery.mousewheel',
     'pocket-api': 'pocket-api',
     'oauthpopup': 'oauthpopup',
     'simple-statistics': '../../bower_components/simple-statistics/src/simple_statistics',

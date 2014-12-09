@@ -4,13 +4,8 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
     // properties
     readsList : [],
     stats : {},
-    colors : [
-      '#00FF77',
-      '#FF4062',
-      '#F3FF00',
-      '#0CC7DC',
-      '#498385'
-    ],
+
+    // TODO add callbacks to these methods
 
     // methods
     getData : function () {
@@ -52,30 +47,34 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
         // Round timestamps to the day
         d.day_added = moment(_.parseInt(d.time_added)*1000).hours(0).minutes(0).seconds(0).unix();
         d.day_updated = moment(_.parseInt(d.time_updated)*1000).hours(0).minutes(0).seconds(0).unix();
-        d.day_read = moment(_.parseInt(d.time_read)*1000).hours(0).minutes(0).seconds(0).unix();
-        d.dayAddedId = moment(d.time_added*1000).format('YYMMDD');
-        d.dayReadId = moment(d.time_read*1000).format('YYMMDD');
+        d.day_read = (d.time_read != "0") ? moment(_.parseInt(d.time_read)*1000).hours(0).minutes(0).seconds(0).unix() : false;
+        d.dayAddedId = moment(d.day_added*1000).format('YYMMDD');
+        d.dayReadId = d.day_read ? moment(d.day_read*1000).format('YYMMDD') : false;
+
+        // Add some more detail
+        var r = /:\/\/(.[^/]+)/
+        d.domain = d.resolved_url.match(r)[1];
 
         // Add data to stats object
         this.stats.startTimestamp = Math.min(this.stats.startTimestamp, d.day_updated);
         this.stats.endTimestamp = Math.max(this.stats.endTimestamp, d.day_updated);
         // Init counter for day if this is the first item
         if (!this.stats.daysAddedCounter[d.dayAddedId]) this.stats.daysAddedCounter[d.dayAddedId] = {counter : 0, words : 0};
-        if (!this.stats.daysReadCounter[d.dayReadId]) this.stats.daysReadCounter[d.dayReadId] = {counter : 0, words : 0};
+        if (d.dayReadId && !this.stats.daysReadCounter[d.dayReadId]) this.stats.daysReadCounter[d.dayReadId] = {counter : 0, words : 0};
         // Add offsets (words already in the day)
         d.addedWordOffset = this.stats.daysAddedCounter[d.dayAddedId].words;
-        d.readWordOffset = this.stats.daysReadCounter[d.dayReadId].words;
-        d.addedCountOffset = this.stats.daysAddedCounter[d.dayAddedId].count;
-        d.readCountOffset = this.stats.daysReadCounter[d.dayReadId].count;
+        d.readWordOffset = d.dayReadId ? this.stats.daysReadCounter[d.dayReadId].words : 0;
+        d.addedCountOffset = this.stats.daysAddedCounter[d.dayAddedId].counter;
+        d.readCountOffset = d.dayReadId ? this.stats.daysReadCounter[d.dayReadId].counter : 0;
         // Add all other stats
         this.stats.daysAddedCounter[d.dayAddedId].counter += 1;
-        this.stats.daysReadCounter[d.dayReadId].counter += 1;
+        if (d.dayReadId) this.stats.daysReadCounter[d.dayReadId].counter += 1;
         this.stats.daysAddedCounter[d.dayAddedId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
-        this.stats.daysReadCounter[d.dayReadId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
+        if (d.dayReadId) this.stats.daysReadCounter[d.dayReadId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
         this.stats.adds.maxPerDay = Math.max(this.stats.adds.maxPerDay, this.stats.daysAddedCounter[d.dayAddedId].counter);
         this.stats.words.maxAddedPerDay = Math.max(this.stats.words.maxAddedPerDay, this.stats.daysAddedCounter[d.dayAddedId].words);
-        this.stats.reads.maxPerDay = Math.max(this.stats.reads.maxPerDay, this.stats.daysReadCounter[d.dayReadId].counter);
-        this.stats.words.maxReadPerDay = Math.max(this.stats.words.maxReadPerDay, this.stats.daysReadCounter[d.dayReadId].words);
+        if (d.dayReadId) this.stats.reads.maxPerDay = Math.max(this.stats.reads.maxPerDay, this.stats.daysReadCounter[d.dayReadId].counter);
+        if (d.dayReadId) this.stats.words.maxReadPerDay = Math.max(this.stats.words.maxReadPerDay, this.stats.daysReadCounter[d.dayReadId].words);
         this.stats.totalWords += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
         this.stats.longestRead = Math.max(this.stats.longestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
         this.stats.shortestRead = Math.min(this.stats.shortestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
@@ -117,5 +116,20 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
         this.computeStats();
       }
     }
+
+    /*
+     * Do NLP
+     * Best option probably is:
+     *  https://github.com/wooorm/retext-keywords
+     *  and https://github.com/wooorm/retext
+     *
+     * Alternatives:
+     *  https://github.com/kimchouard/keyword-extract
+     *  https://github.com/michaeldelorenzo/keyword-extractor
+     *  https://github.com/harthur/glossary
+     * Or browserify
+     *  https://www.npmjs.org/package/gramophone
+     * */
+
   }
 });

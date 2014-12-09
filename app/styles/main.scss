@@ -1,6 +1,7 @@
 // bower:scss
 // endbower
 
+// Color theme: https://color.adobe.com/Copy-of-Avant-color-theme-4814328/edit/?copy=true&base=2&rule=Custom&selected=3&name=Copy%20of%20Copy%20of%20Avant&mode=rgb&rgbvalues=0.054902,0.239216,0.34902,0.533333,0.65098,0.105882,0.94902,0.623529,0.0196078,0.94902,0.360784,0.0196078,0.85098,0.145098,0.145098&swatchOrder=0,1,2,3,4
 
 /* FONTS */
 @font-face {
@@ -34,7 +35,7 @@
   font-style: normal;
 }
 
-[class^="icon-"]:before, [class*=" icon-"]:before {
+ [class^="icon-"]:before, [class*=" icon-"]:before {
   font-family: "myfont";
   font-style: normal;
   font-weight: normal;
@@ -79,6 +80,8 @@
 .icon-share:before { content: '\e80b'; } /* '' */
 .icon-bitcoin:before { content: '\e80c'; } /* '' */
 .icon-location-circled:before { content: '\e80d'; } /* '' */
+.icon-left-circle:before { content: '\e80e'; } /* '' */
+.icon-right-circle:before { content: '\e80f'; } /* '' */
 .icon-twitter-circled-1:before { content: '\e811'; } /* '' */
 .icon-website:before { content: '\e812'; } /* '' */
 .icon-github:before { content: '\e816'; } /* '' */
@@ -91,7 +94,9 @@
   padding: 0.2em 0;
 }
 
-
+a {
+   outline: 0;
+}
 
 body {
   font-family: montserratregular, sans-serif;
@@ -111,15 +116,30 @@ body {
     border: none;
     background-color: rgba(255, 255, 255, 0.65);
 
-    a:link,
-    a:visited {
-      color: #000;
+    a.navbar-brand:link,
+    a.navbar-brand:visited {
+      .icon-pocket {
+        color: #D92525;
+      }
+      color: #0E3D59;
+    }
+    a.navbar-brand:hover,
+    a.navbar-brand:active {
+      .icon-pocket {
+        color: #a81e1e;
+      }
+      color: #0b2b3e;
+    }
+    .navbar-right a:link,
+    .navbar-right a:visited {
+      color: #0E3D59;
+    }
+    .navbar-right a:hover,
+    .navbar-right a:active {
+      color: #0b2b3e;
     }
 
-    a:hover,
-    a:active {
-      color: #222;
-    }
+
     /* Modals */
     .modal-content {
       a:link,
@@ -165,13 +185,30 @@ body {
   font-weight: 200;
 }
 
+/* Scroll buttons */
+#scrollButtons {
+  position: absolute;
+  bottom: 8px;
+  left: 25px;
+  font-size: 30px;
+  a {
+    color: #F25C05;
+    font-family: "myfont";
+    i.icon-left-circle:before,
+    i.icon-right-circle:before {
+      margin: 0;
+    }
+  }
+}
+
 /* Social share */
 #socialShare {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  bottom: 8px;
+  right: 25px;
   font-size: 30px;
   a {
+    color: #0b2b3e;
     i.icon-facebook-circled:before,
     i.icon-twitter-circled-1:before {
       margin: 0;
@@ -204,7 +241,8 @@ body {
     padding: 0;
     margin: 0;
     svg {
-      background: rgba(204, 204, 204, 0.80);
+      //background: rgba(204, 204, 204, 0.80);
+      background: #fff;
     }
   }
 
@@ -212,8 +250,8 @@ body {
     margin: 0 16px;
 
     .readblock path {
-      fill:#123652;
-      fill-opacity:0.25;
+      //fill:#123652;
+      fill-opacity:0.10;
       fill-rule:nonzero;
       stroke: none;
       marker:none;
@@ -221,22 +259,54 @@ body {
       enable-background:accumulate
     }
     .readblock rect {
-      color:#000000;
-      fill:#123652;
-      fill-opacity:0.25;
+      //fill:#123652;
+      fill-opacity:0.85;
       fill-rule:nonzero;
-      stroke:#898989;
-      stroke-width:0.375;
-      stroke-miterlimit:4;
-      stroke-opacity:1;
-      stroke-dasharray:none;
-      stroke-dashoffset:0;
+      stroke: none;
+//      stroke:#898989;
+//      stroke-width:0.375;
+//      stroke-miterlimit:4;
+//      stroke-opacity:1;
+//      stroke-dasharray:none;
+//      stroke-dashoffset:0;
       marker:none;
       visibility:visible;
       enable-background:accumulate
     }
+
+    .readblock .col1 {
+      //fill:#00FF77;
+      //fill: #CBDAD5;
+      fill: #0E3D59;
+    }
+    .readblock .col2 {
+      //fill:#FF4062;
+      //fill: 89A7B1;
+      fill: #88A61B;
+    }
+    .readblock .col3 {
+      //fill:#F3FF00;
+      //fill: 566981;
+      fill: #F29F05;
+    }
+    .readblock .col4 {
+      //fill:#0CC7DC;
+      //fill: #3A415A;
+      fill: #F25C05;
+    }
+    .readblock .col5 {
+      //fill:#498385;
+      //fill: #34344E;
+      fill: #D92525;
+    }
+
   }
 
+  .dividers path {
+    fill: none;
+    stroke: #393939;
+    shape-rendering: crispEdges;
+  }
   .axis path,
   .axis line {
     fill: none;
