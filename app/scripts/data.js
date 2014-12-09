@@ -4,6 +4,13 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
     // properties
     readsList : [],
     stats : {},
+    colors : [
+      '#00FF77',
+      '#FF4062',
+      '#F3FF00',
+      '#0CC7DC',
+      '#498385'
+    ],
 
     // methods
     getData : function () {
@@ -11,6 +18,9 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
                         .toArray()
                         .sortBy(function (d) {
                           return _.parseInt(d.time_added);
+                        })
+                        .filter(function (d) {
+                          return (d.status != "2" && d.is_article == "1");
                         })
                         .value();
     },
@@ -25,7 +35,9 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
         },
         words : {
           maxAddedPerDay : 0,
-          maxReadPerDay : 0
+          maxReadPerDay : 0,
+          averageLength : 0,
+          modeLength : 0
         },
         totalWords : 0,
         longestRead : 0,
@@ -33,7 +45,8 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
         startTimestamp : moment().unix(),
         endTimestamp : 0,
         daysAddedCounter : {},
-        daysReadCounter : {}
+        daysReadCounter : {},
+        wordLengths: []
       };
       this.readsList = _.map(this.readsList, function (d, i, l) {
         // Round timestamps to the day
@@ -66,6 +79,7 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
         this.stats.totalWords += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
         this.stats.longestRead = Math.max(this.stats.longestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
         this.stats.shortestRead = Math.min(this.stats.shortestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
+        if (_.parseInt(d.word_count)) this.stats.wordLengths.push(_.parseInt(d.word_count));
 
         // Return the updated object
         return d;
@@ -73,6 +87,10 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
       // Find the range of time from the first timestamp to the last timestamp in the dataset
       this.stats.startTime = new Date(this.stats.startTimestamp*1000);
       this.stats.endTime   = new Date(this.stats.endTimestamp*1000);
+
+      // Compute word length stats
+      this.stats.words.averageLength = ss.mean(this.stats.wordLengths);
+      this.stats.words.modeLength = ss.mode(this.stats.wordLengths);
     },
 
     filterOutliers : function () {

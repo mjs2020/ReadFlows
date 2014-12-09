@@ -25,7 +25,8 @@ switch($_GET['a']) {                                      // Get what action we'
     $data = array(
       "consumer_key" => $config['consumer_key'],
       "access_token" => $_GET['accessToken'],
-      "state" => "all"
+      "state" => "all",
+      "detailType" => "complete"
     );
     if (isset($_GET['since'])) $data['since'] = $_GET['since'];
     break;
