@@ -139,6 +139,9 @@ body {
       color: #0b2b3e;
     }
 
+    sup {
+      color: rgb(217, 37, 37);
+    }
 
     /* Modals */
     .modal-content {
@@ -241,8 +244,9 @@ body {
     padding: 0;
     margin: 0;
     svg {
-      //background: rgba(204, 204, 204, 0.80);
-      background: #fff;
+      background: rgba(255, 255, 255, 0.85);
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
     }
   }
 
@@ -303,7 +307,8 @@ body {
   .axis path,
   .axis line {
     fill: none;
-    stroke: black;
+    stroke: #000;
+    stroke-width: 1px;
     shape-rendering: crispEdges;
   }
   .axis text {

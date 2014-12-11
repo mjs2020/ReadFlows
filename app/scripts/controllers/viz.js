@@ -182,8 +182,9 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
                     })
                     .direction(chooseDir.bind(this))
                     .offset(function(d) {
-                      var h = -document.getElementById('gid'+d.item_id).getBBox().height/2+3;
-                      return [h, -dayWidth];
+                      var h = -document.getElementById('gid'+d.item_id).getBBox().height/2+3,
+                          v = chooseDir(d) == 'w' ? -dayWidth : -document.getElementById('gid'+d.item_id).getBBox().width+dayWidth+8;
+                      return [h, v];
                     }),
         highlight = function(op) {          // function returns an event handler
           return function (g,i) {
