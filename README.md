@@ -2,6 +2,8 @@
 
 A tool for visualizing reading data fron a user's [Pocket app](http://www.getpocket.com).
 
+![Screenshot](pocketviz.png)
+
 ## Demo
 
 Use a demo at (currently not public)
