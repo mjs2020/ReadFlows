@@ -250,8 +250,7 @@ body {
     margin: 0 16px;
 
     .readblock path {
-      //fill:#123652;
-      fill-opacity:0.10;
+      fill-opacity:0.20;
       fill-rule:nonzero;
       stroke: none;
       marker:none;
@@ -259,52 +258,46 @@ body {
       enable-background:accumulate
     }
     .readblock rect {
-      //fill:#123652;
       fill-opacity:0.85;
       fill-rule:nonzero;
-      stroke: none;
-//      stroke:#898989;
-//      stroke-width:0.375;
-//      stroke-miterlimit:4;
-//      stroke-opacity:1;
-//      stroke-dasharray:none;
-//      stroke-dashoffset:0;
+      stroke: #fff;
+      stroke-width: 0.5px;
+      stroke-opacity: 1;
       marker:none;
       visibility:visible;
       enable-background:accumulate
     }
+    .readblock rect.added {
+
+    }
+    .readblock rect.read {
+
+    }
+
 
     .readblock .col1 {
-      //fill:#00FF77;
-      //fill: #CBDAD5;
       fill: #0E3D59;
     }
     .readblock .col2 {
-      //fill:#FF4062;
-      //fill: 89A7B1;
       fill: #88A61B;
     }
     .readblock .col3 {
-      //fill:#F3FF00;
-      //fill: 566981;
       fill: #F29F05;
     }
     .readblock .col4 {
-      //fill:#0CC7DC;
-      //fill: #3A415A;
       fill: #F25C05;
     }
     .readblock .col5 {
-      //fill:#498385;
-      //fill: #34344E;
       fill: #D92525;
     }
 
   }
 
-  .dividers path {
+  .dividers path.divider {
     fill: none;
-    stroke: #393939;
+    stroke: #797979;
+    stroke-width: 0.5px;
+    stroke-dasharray: 1 2;
     shape-rendering: crispEdges;
   }
   .axis path,
@@ -342,6 +335,18 @@ body {
   color: #fff;
   border-radius: 2px;
   pointer-events: none;
+  font-size: 10px;
+  font-weight: normal;
+  max-width: 22em;
+  strong {
+    display: block;
+    border-bottom: 0.5px dotted #fff;
+    margin-bottom: 0.3em;
+  }
+  em {
+    display: block;
+    text-align: right;
+  }
 }
 /* Creates a small triangle extender for the tooltip */
 .d3-tip:after {

@@ -15,7 +15,7 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
                           return _.parseInt(d.time_added);
                         })
                         .filter(function (d) {
-                          return (d.status != "2" && d.is_article == "1");
+                          return (d.status != "2" && d.is_article == "1" && (_.parseInt(d.time_read) == 0 || _.parseInt(d.time_added) <= _.parseInt(d.time_read)));
                         })
                         .value();
     },

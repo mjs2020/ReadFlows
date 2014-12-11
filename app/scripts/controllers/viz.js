@@ -34,9 +34,6 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
         yScale = d3.scale.linear()
                          .range([0, graphHeight-40-margin.top-margin.bottom-(data.stats.adds.maxPerDay+data.stats.reads.maxPerDay)*minBlockHeight])
                          .domain([0, data.stats.words.maxAddedPerDay+data.stats.words.maxReadPerDay]),
-//        yScale = d3.scale.linear()
-//                         .range([0, (graphHeight-50)/2])
-//                         .domain([0, Math.max(data.stats.words.maxAddedPerDay, data.stats.words.maxReadPerDay)]),
         dayWidth = yScale(data.stats.words.averageLength)*2.5, // Approximate calculation
         svgWidth = Math.floor((data.stats.endTimestamp - data.stats.startTimestamp)/(60*60*24))*dayWidth,
         graphWidth = svgWidth - margin.right - margin.left,
@@ -47,8 +44,6 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
                       .attr('height', svgHeight)
                       .attr('viewbox', '0 0 '+svgWidth+' '+svgHeight)
                       .attr('preserveAspectRatio', 'xMinYMin');
-
-    console.log('dayWidth '+dayWidth);
 
     // Assign behaviour in case of window resize (for responsiveness) and size the canvas for starts
     var aspect = svgWidth / svgHeight,
@@ -77,10 +72,14 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
     });
 
 
-    // Create a xScale() and yScale() functions
+    // Create a xScale() functions
     var xScale = d3.time.scale.utc()
-                        .range([0, graphWidth-margin.left-margin.right])
-                        .domain([data.stats.startTime, data.stats.endTime]);
+                         .range([0, graphWidth-margin.left-margin.right])
+                         .domain([data.stats.startTime, data.stats.endTime]),
+        // TODO COME BACK TO THIS
+        xScaleR = d3.time.scale.utc()
+                         .range([0, graphWidth-margin.left-margin.right])
+                         .domain([data.stats.startTime, data.stats.endTime]);
 
     // Create the xAxis and draw them
     var xAxis = d3.svg.axis()
@@ -166,25 +165,41 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
         splitLineY = yScale(data.stats.words.maxAddedPerDay)+margin.top+25+data.stats.adds.maxPerDay*minBlockHeight;
     dividers.append('path')
             .attr('class','divider')
-            .attr('d', 'M 10,'+splitLineY+' L '+graphWidth+','+splitLineY)
+            .attr('d', 'M 10,'+splitLineY+' L '+graphWidth+','+splitLineY);
 
-
-    // Add Tooltip and highlight function
-    var tooltip = d3.tip()
+    // Add Tooltip, highlight, openLink and direction functions
+    var chooseDir = function (d) {
+          var absX = document.getElementById('gid'+d.item_id).getBBox().x-document.getElementById('graphOuter').scrollLeft;
+          return absX > document.getElementById('graphOuter').offsetWidth/2 ? 'w' : 'e';
+        },
+        tooltip = d3.tip()
                     .attr('class', 'd3-tip')
                     .html(function(d) {
                       return '<strong>'+d.resolved_title+'</strong>'+
-                             '<br />'+
                              '<em>'+d.domain+'</em><br />'+
                              'Added: '+moment(d.day_added*1000).format('Do MMM YYYY')+'<br />'+
                              'Read: '+moment(d.day_read*1000).format('Do MMM YYYY');
                     })
-                    .direction('e')
-                    .offset(function() {
-                      return [-(this.getBBox().height/2), -(this.getBBox().width/2)-dayWidth]
+                    .direction(chooseDir.bind(this))
+                    .offset(function(d) {
+                      var h = -document.getElementById('gid'+d.item_id).getBBox().height/2+3;
+                      return [h, -dayWidth];
                     }),
-        highlight = function() {
-          console.log(this);
+        highlight = function(op) {          // function returns an event handler
+          return function (g,i) {
+            pocketviz.selectAll('g.readblock')
+                     .filter(function (d) {
+                       return d.item_id != g.item_id;
+                     })
+                     .interrupt().transition().duration(500)
+                     .style('opacity', (op == "on" ? '0.2' : '1') );
+            pocketviz.select('g#gid'+g.item_id+' path')
+                     .interrupt().transition().duration(500)
+                     .style('fill-opacity', (op == "on" ? '1' : '0.1') );
+          }
+        },
+        openLink = function (url) {
+          window.open(url, 'article')
         };
     pocketviz.call(tooltip);
 
@@ -208,23 +223,23 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
 
       d.points.p1          = {};
       d.points.p1.x        = d.points.addedRect.x+d.points.addedRect.w;
-      d.points.p1.y        = d.points.addedRect.y;
+      d.points.p1.y        = d.points.addedRect.y+d.points.addedRect.h;
 
       d.points.p2          = {};
       d.points.p2.x        = d.points.readRect.x;
-      d.points.p2.y        = d.points.readRect.y;
+      d.points.p2.y        = d.points.readRect.y+d.points.readRect.h;
       d.points.p2.cx1      = d.points.p1.x+(d.points.p2.x-d.points.p1.x)/2;
-      d.points.p2.cy1      = d.points.p2.y;
+      d.points.p2.cy1      = d.points.p1.y;
       d.points.p2.cx2      = d.points.p2.x-(d.points.p2.x-d.points.p1.x)/2;
       d.points.p2.cy2      = d.points.p2.y;
 
       d.points.p3          = {};
       d.points.p3.x        = d.points.readRect.x;
-      d.points.p3.y        = d.points.readRect.y + d.points.readRect.h;
+      d.points.p3.y        = d.points.readRect.y;
 
       d.points.p4          = {};
       d.points.p4.x        = d.points.addedRect.x + d.points.readRect.w;
-      d.points.p4.y        = d.points.addedRect.y + d.points.addedRect.h;
+      d.points.p4.y        = d.points.addedRect.y;
       d.points.p4.cx1      = d.points.p4.x+(d.points.p3.x-d.points.p4.x)/2;
       d.points.p4.cy1      = d.points.p3.y;
       d.points.p4.cx2      = d.points.p4.x+(d.points.p3.x-d.points.p4.x)/2;
@@ -243,14 +258,12 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
                              .append('g')
                                .attr('class', 'readblock')
                                .attr('id', function (d) {
-                                 return d.item_id;
+                                 return 'gid'+d.item_id;
                                });
     dataPlots.append('path')
-             //.attr('class', 'wave')
              .attr('class', function (d) { return 'wave col' + ((d.addedCountOffset % 5)+1) })
              .attr("d", function (d) {    // the d3 line function does not help in this case so we generate the d attr directly here
-               var dStr = '';
-               // build the string
+               var dStr = '';             // build the string
                dStr += 'M ' + d.points.p1.x   + ',' + d.points.p1.y   + ' ';
                dStr += 'C ' + d.points.p2.cx1 + ',' + d.points.p2.cy1 + ' ' + d.points.p2.cx2 + ',' + d.points.p2.cy2 + ' ' + d.points.p2.x + ',' + d.points.p2.y + ' ';
                dStr += 'L ' + d.points.p3.x   + ',' + d.points.p3.y   + ' ';
@@ -258,31 +271,34 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
                dStr += 'z';
                return dStr;
              })
-             .attr("visibility", function(d,i){
-               if(d.time_read == '0') return "hidden";
-             })
-             .on('mouseover', tooltip.show)
-             .on('mouseout', tooltip.hide);;
+             .attr("visibility", function(d,i){ if(d.time_read == '0') return "hidden"; })
+             .on('mouseover.hl', highlight('on'))
+             .on('mouseover.tip', function(d) { tooltip.show(d, document.getElementById('gid'+d.item_id)) })
+             .on('mouseout.hl', highlight('off'))
+             .on('mouseout.tip', function(d){ tooltip.hide() });
     dataPlots.append('rect')
              .attr('class', function (d) { return 'added col' + ((d.addedCountOffset % 5)+1) })
              .attr('x', function (d) { return d.points.addedRect.x })
              .attr('y', function (d) { return d.points.addedRect.y })
              .attr('width', function (d) { return d.points.addedRect.w })
              .attr('height', function (d) { return d.points.addedRect.h })
-             .on('mouseover', highlight)
-             .on('mouseover', tooltip.show)
-             .on('mouseout', tooltip.hide);
+             .on('mouseover.hl', highlight('on'))
+             .on('mouseover.tip', function(d) { tooltip.show(d, document.getElementById('gid'+d.item_id)) })
+             .on('mouseout.hl', highlight('off'))
+             .on('mouseout.tip', function(d) { tooltip.hide() })
+             .on('click', function (d) { openLink(d.resolved_url) });
     dataPlots.insert('rect',':first-child')
              .attr('class', function (d) { return 'read col' + ((d.addedCountOffset % 5)+1) })
-             .attr("visibility", function(d,i){
-               if(d.time_read == '0') return "hidden";
-             })
+             .attr("visibility", function(d,i){ if(d.time_read == '0') return "hidden"; })
              .attr('x', function (d) { return d.points.readRect.x })
              .attr('y', function (d) { return d.points.readRect.y })
              .attr('width', function (d) { return d.points.readRect.w })
              .attr('height', function (d) { return d.points.readRect.h })
-             .on('mouseover', tooltip.show)
-             .on('mouseout', tooltip.hide);
+             .on('mouseover.hl', highlight('on'))
+             .on('mouseover.tip', function(d) { tooltip.show(d, document.getElementById('gid'+d.item_id)) })
+             .on('mouseout.hl', highlight('off'))
+             .on('mouseout.tip', function(d){ tooltip.hide() })
+             .on('click', function (d) { openLink(d.resolved_url) });
 
     // Cleanup hidden stuff
     d3.selectAll("rect[visibility=hidden]").remove();
