@@ -4,7 +4,7 @@ A tool for visualizing reading data fron a user's [Pocket app](http://www.getpoc
 
 ## Demo
 
-Use a demo at http://play.fm.to.it/pocketviz
+Use a demo at (currently not public)
 
 ## Installation
 
@@ -57,5 +57,4 @@ Upload the contents of the ```dist``` folder to your server and access it throug
 PocketViz is free software licenced under the [GNU GPL](https://www.gnu.org/licenses/gpl.html) licence.
 
 ## Credits
-Tools used: bootstrap, angular, d3
-The background image is by Dave Crosby @ Flickr (https://www.flickr.com/photos/wikidave/7747767144)
+Checkout the [CREDITS.md](CREDITS.md) file
