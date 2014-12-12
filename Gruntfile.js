@@ -391,12 +391,12 @@ module.exports = function (grunt) {
           cwd: '<%= yeoman.app %>',
           dest: '<%= yeoman.dist %>',
           src: [
-            '*.{ico,png,txt}',
+            '*.{ico,png,txt,php}',
             '.htaccess',
             '*.html',
             'views/{,*/}*.html',
-            'images/{,*/}*.{webp}',
-            'fonts/{,*/}*.*'
+            'images/{,*/}*.*',
+            'styles/fonts/{,*/}*.*'
           ]
         }, {
           expand: true,
@@ -539,11 +539,11 @@ module.exports = function (grunt) {
     'concat',
     'ngAnnotate',
     'copy:dist',
-    'cdnify',
+    //'cdnify',
     'cssmin',
     // Below task commented out as r.js (via grunt-contrib-requirejs) will take care of this
     // 'uglify',
-    'filerev',
+    // 'filerev',
     'usemin',
     'requirejs:dist',
     'htmlmin'
