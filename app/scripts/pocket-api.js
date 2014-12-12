@@ -52,7 +52,15 @@ define(['jquery', 'lodash', 'jquery-cookie'], function($, _) {
             localData = JSON.stringify(response.list);
             if(DEBUG) console.log('Fetched full reading list. '+_.size(response.list)+' reads stored.');
           }
-          localStorage.setItem('pocketviz.readsList', localData);
+          try {
+            localStorage.setItem('pocketviz.readsList', localData);
+          } catch (e) {
+            console.log('Something went terribly wrong when trying to store your data!')
+            if (e == QUOTA_EXCEEDED_ERR || e == NS_ERROR_DOM_QUOTA_REACHED) {
+              console.log('Quota exceeded!');
+              // TODO do something to handle this error!
+            }
+          }
           localStorage.setItem('pocketviz.lastUpdate', response.since);
           callback(null);
         },
