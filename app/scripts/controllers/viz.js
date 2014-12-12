@@ -1,4 +1,4 @@
-define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-mousewheel'], function (angular, $, moment, _, data, d3) {
+define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery-mousewheel'], function (angular, $, moment, _, data, d3) {
   'use strict';
 
   /**
@@ -35,7 +35,8 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
                          .range([0, graphHeight-40-margin.top-margin.bottom-(data.stats.adds.maxPerDay+data.stats.reads.maxPerDay)*minBlockHeight])
                          .domain([0, data.stats.words.maxAddedPerDay+data.stats.words.maxReadPerDay]),
         dayWidth = yScale(data.stats.words.averageLength)*2.5, // Approximate calculation
-        svgWidth = Math.floor((data.stats.endTimestamp - data.stats.startTimestamp)/(60*60*24))*dayWidth,
+        skewAmount = dayWidth*10,
+        svgWidth = Math.floor((data.stats.endTimestamp - data.stats.startTimestamp)/(60*60*24))*dayWidth+skewAmount,
         graphWidth = svgWidth - margin.right - margin.left,
         pocketviz = d3.select("#graph")
                       .append("svg")
@@ -73,26 +74,29 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
 
 
     // Create a xScale() functions
-    var xScale = d3.time.scale.utc()
+    var xScaleA = d3.time.scale.utc()
                          .range([0, graphWidth-margin.left-margin.right])
-                         .domain([data.stats.startTime, data.stats.endTime]),
-        // TODO COME BACK TO THIS
+                         .domain([data.stats.startTime, data.stats.endTime])
+                         .nice(d3.time.month.utc),
         xScaleR = d3.time.scale.utc()
-                         .range([0, graphWidth-margin.left-margin.right])
-                         .domain([data.stats.startTime, data.stats.endTime]);
+                         .range([skewAmount, graphWidth-margin.left-margin.right+skewAmount])
+                         .domain([data.stats.startTime, data.stats.endTime])
+                         .nice(d3.time.month.utc);
 
-    // Create the xAxis and draw them
-    var xAxis = d3.svg.axis()
-                      .scale(xScale),
+    // Create the axises and draw them
+    var xAxisA = d3.svg.axis()
+                       .scale(xScaleA),
+        xAxisR = d3.svg.axis()
+                       .scale(xScaleR),
         addedAxisYear = pocketviz.append("g")
                                   .attr('id', 'addedAxisYear')
                                   .attr("class", "axis")
                                   .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
-                                  .call(xAxis.orient('top')
-                                             .ticks(d3.time.year.utc, 1)
-                                             .tickFormat(d3.time.format('%Y'))
-                                             .innerTickSize(25)
-                                       )
+                                  .call(xAxisA.orient('top')
+                                              .ticks(d3.time.year.utc, 1)
+                                              .tickFormat(d3.time.format('%Y'))
+                                              .innerTickSize(25)
+                                        )
                                   .selectAll('text')
                                   .attr('y', -17)
                                   .attr('x', 5)
@@ -101,11 +105,11 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
                                   .attr('id', 'addedAxisMonth')
                                   .attr("class", "axis")
                                   .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
-                                  .call(xAxis.orient('top')
-                                             .ticks(d3.time.month.utc, 1)
-                                             .tickFormat(d3.time.format('%b'))
-                                             .innerTickSize(16)
-                                       )
+                                  .call(xAxisA.orient('top')
+                                              .ticks(d3.time.month.utc, 1)
+                                              .tickFormat(d3.time.format('%b'))
+                                              .innerTickSize(16)
+                                        )
                                   .selectAll('text')
                                   .attr('y', -7)
                                   .attr('x', 5)
@@ -114,22 +118,22 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
                                   .attr('id', 'addedAxisDay')
                                   .attr("class", "axis")
                                   .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
-                                  .call(xAxis.orient('top')
-                                             .ticks(d3.time.day.utc, 1)
-                                             .tickFormat(d3.time.format(''))
-                                             .innerTickSize(5)
-                                       )
+                                  .call(xAxisA.orient('top')
+                                              .ticks(d3.time.day.utc, 1)
+                                              .tickFormat(d3.time.format(''))
+                                              .innerTickSize(5)
+                                        )
                                   .selectAll('text')
                                   .remove(),
         readAxisYear = pocketviz.append("g")
                                  .attr('id', 'readAxisYear')
                                  .attr("class", "axis")
                                  .attr('transform', 'translate('+margin.left+','+(graphHeight-margin.top-margin.bottom-10)+')')
-                                 .call(xAxis.orient('bottom')
-                                            .ticks(d3.time.year.utc, 1)
-                                            .tickFormat(d3.time.format('%Y'))
-                                            .innerTickSize(25)
-                                      )
+                                 .call(xAxisR.orient('bottom')
+                                             .ticks(d3.time.year.utc, 1)
+                                             .tickFormat(d3.time.format('%Y'))
+                                             .innerTickSize(25)
+                                       )
                                  .selectAll('text')
                                  .attr('y', 17)
                                  .attr('x', 5)
@@ -138,11 +142,11 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
                                  .attr('id', 'readAxisMonth')
                                  .attr("class", "axis")
                                  .attr('transform', 'translate('+margin.left+','+(graphHeight-margin.top-margin.bottom-10)+')')
-                                 .call(xAxis.orient('bottom')
-                                            .ticks(d3.time.month.utc, 1)
-                                            .tickFormat(d3.time.format('%b'))
-                                            .innerTickSize(16)
-                                      )
+                                 .call(xAxisR.orient('bottom')
+                                             .ticks(d3.time.month.utc, 1)
+                                             .tickFormat(d3.time.format('%b'))
+                                             .innerTickSize(16)
+                                       )
                                  .selectAll('text')
                                  .attr('y', 7)
                                  .attr('x', 5)
@@ -151,21 +155,38 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
                                  .attr('id', 'readAxisDay')
                                  .attr("class", "axis")
                                  .attr('transform', 'translate('+margin.left+','+(graphHeight-margin.top-margin.bottom-10)+')')
-                                 .call(xAxis.orient('bottom')
-                                            .ticks(d3.time.day.utc, 1)
-                                            .tickFormat(d3.time.format(''))
-                                            .innerTickSize(5)
-                                      )
+                                 .call(xAxisR.orient('bottom')
+                                             .ticks(d3.time.day.utc, 1)
+                                             .tickFormat(d3.time.format(''))
+                                             .innerTickSize(5)
+                                       )
                                  .selectAll('text')
                                  .remove();
 
     // Add boxes to highlight adds and reads together with text
     var dividers = pocketviz.append('g')
-                            .attr('class','dividers'),
-        splitLineY = yScale(data.stats.words.maxAddedPerDay)+margin.top+25+data.stats.adds.maxPerDay*minBlockHeight;
-    dividers.append('path')
+                            .attr('class','dividers')
+                            .attr('transform', 'translate('+margin.left+','+(margin.top)+')'),
+        splitLineY = yScale(data.stats.words.maxAddedPerDay)+margin.top+25+data.stats.adds.maxPerDay*minBlockHeight,
+        splitLineX = (splitLineY/(graphHeight-50))*skewAmount,
+        monthLines = d3.time.month.utc.range(d3.time.month.utc.floor(data.stats.startTime), d3.time.month.utc.ceil(data.stats.endTime));
+    dividers.append('line')
             .attr('class','divider')
-            .attr('d', 'M 10,'+splitLineY+' L '+graphWidth+','+splitLineY);
+            .attr('x1', splitLineX)
+            .attr('y1', splitLineY)
+            .attr('x2', graphWidth)
+            .attr('y2', splitLineY)
+    dividers.selectAll('line')
+            .data(monthLines)
+            .enter()
+            .append('line')
+            .attr('class','month')
+            .attr('x1', function(d) { return xScaleA(d) })
+            .attr('y1', 25)
+            .attr('x2', function(d) { return xScaleR(d) })
+            .attr('y2', graphHeight-50)
+
+
 
     // Add Tooltip, highlight, openLink and direction functions
     var chooseDir = function (d) {
@@ -211,13 +232,13 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3tip', 'jquery-
       // calculate values
       d.points             = {};
       d.points.addedRect   = {};
-      d.points.addedRect.x = xScale(new Date(_.parseInt(d.day_added)*1000));
+      d.points.addedRect.x = xScaleA(new Date(_.parseInt(d.day_added)*1000));
       d.points.addedRect.y = yScale(d.addedWordOffset)+d.addedCountOffset*minBlockHeight;
       d.points.addedRect.w = dayWidth-0.75;
       d.points.addedRect.h = yScale(_.parseInt(d.word_count))+minBlockHeight;
 
       d.points.readRect    = {};
-      d.points.readRect.x  = xScale(new Date(_.parseInt(d.day_read)*1000));
+      d.points.readRect.x  = xScaleR(new Date(_.parseInt(d.day_read)*1000));
       d.points.readRect.y  = graphHeight-73-yScale(_.parseInt(d.word_count))-yScale(d.readWordOffset)-d.readCountOffset*minBlockHeight;
       d.points.readRect.w  = dayWidth-0.75;
       d.points.readRect.h  = yScale(_.parseInt(d.word_count))+minBlockHeight;
