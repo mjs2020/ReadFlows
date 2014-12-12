@@ -297,12 +297,19 @@ body {
 
   }
 
-  .dividers path.divider {
-    fill: none;
-    stroke: #797979;
-    stroke-width: 0.5px;
-    stroke-dasharray: 1 2;
-    shape-rendering: crispEdges;
+  .dividers {
+    line.divider {
+      fill: none;
+      stroke: #797979;
+      stroke-width: 0.5px;
+      stroke-dasharray: 1 2;
+      shape-rendering: crispEdges;
+    }
+    line.month {
+      fill: none;
+      stroke: #000;
+      stroke-width: 1.2px;
+    }
   }
   .axis path,
   .axis line {
