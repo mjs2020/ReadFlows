@@ -1,9 +1,20 @@
 <?php
-// Credits to
-// https://github.com/cowboy/php-simple-proxy
+// Some inspiration from: https://github.com/cowboy/php-simple-proxy
 
 include 'config.php';                                     // Include the configuration
 
+// Check that this is coming from the same domain
+$ref = $_SERVER['HTTP_REFERER'];
+$refData = parse_url($ref);
+if($refData['host'] !== 'play.fm.to.it') {
+  // Stop execution
+  die("Hotlinking not permitted, install proxy on your own server and use your own app key.");
+}
+
+// Check that this is an xmlhttprequest
+if(empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+  die("No XMLHTTP request detected");
+}
 
 switch($_GET['a']) {                                      // Get what action we're trying to do
   case 'getRequestToken':
