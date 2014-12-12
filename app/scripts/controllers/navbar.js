@@ -1,4 +1,4 @@
-define(['angular', 'jquery', 'bootstrap', 'text!/views/about.html', 'text!/views/credits.html', 'text!/views/privacy.html'], function (angular, $, _bootstrap, aboutTxt, creditsTxt, privacyTxt) {
+define(['angular', 'jquery', 'bootstrap', 'text!../../views/about.html', 'text!../../views/credits.html', 'text!../../views/privacy.html'], function (angular, $, _bootstrap, aboutTxt, creditsTxt, privacyTxt) {
   'use strict';
 
   /**

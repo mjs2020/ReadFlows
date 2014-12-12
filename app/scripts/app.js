@@ -49,12 +49,12 @@ define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/mai
       controller: 'VizCtrl'
     })
     .when('/stats', {
-      templateUrl: 'views/viz.html',
-      controller: 'VizCtrl'
+      templateUrl: 'views/stats.html',
+      controller: 'StatsCtrl'
     })
     .when('/demo', {
-      templateUrl: 'views/viz.html',
-      controller: 'VizCtrl'
+      templateUrl: 'views/demo.html',
+      controller: 'DemoCtrl'
     })
     .otherwise({
       redirectTo: '/'
