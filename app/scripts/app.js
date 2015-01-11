@@ -1,5 +1,5 @@
 /*jshint unused: vars */
-define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/main', 'controllers/login', 'controllers/viz', 'controllers/stats', 'controllers/demo']/*deps*/, function (angular, $, bootstrap, NavbarCtrl, MainCtrl, LoginCtrl, VizCtrl, StatsCtrl, DemoCtrl)/*invoke*/ {
+define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/main', 'controllers/login', 'controllers/viz', 'controllers/stats', 'controllers/demo', 'services/pocketdata']/*deps*/, function (angular, $, bootstrap, NavbarCtrl, MainCtrl, LoginCtrl, VizCtrl, StatsCtrl, DemoCtrl, PocketdataService)/*invoke*/ {
   'use strict';
 
   // General setup for app
@@ -10,21 +10,22 @@ define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/mai
 
   /**
    * @ngdoc overview
-   * @name pocketvizApp
+   * @name ReadFlowsApp
    * @description
-   * # pocketvizApp
+   * # ReadFlowsApp
    *
    * Main module of the application.
    */
   return angular
-  .module('pocketvizApp', [
-    'pocketvizApp.controllers.MainCtrl',
-    'pocketvizApp.controllers.NavbarCtrl',
-    'pocketvizApp.controllers.LoginCtrl',
-    'pocketvizApp.controllers.VizCtrl',
-    'pocketvizApp.controllers.StatsCtrl',
-    'pocketvizApp.controllers.DemoCtrl',
-/*angJSDeps*/
+  .module('ReadFlowsApp', [
+    'ReadFlowsApp.controllers.MainCtrl',
+    'ReadFlowsApp.controllers.NavbarCtrl',
+    'ReadFlowsApp.controllers.LoginCtrl',
+    'ReadFlowsApp.controllers.VizCtrl',
+    'ReadFlowsApp.controllers.StatsCtrl',
+    'ReadFlowsApp.controllers.DemoCtrl',
+    'ReadFlowsApp.services.Pocketdata',
+    /*angJSDeps*/
     'ngCookies',
     'ngAria',
     'ngMessages',
@@ -32,28 +33,29 @@ define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/mai
     'ngSanitize',
     'ngRoute',
     'ngAnimate',
-    'ngTouch'
+    'ngTouch',
+    'pouchdb'
   ])
   .config(function ($routeProvider) {
     $routeProvider
     .when('/', {
-      templateUrl: 'views/main.html',
+      templateUrl: 'scripts/views/main.html',
       controller: 'MainCtrl'
     })
     .when('/login', {
-      templateUrl: 'views/login.html',
+      templateUrl: 'scripts/views/login.html',
       controller: 'LoginCtrl'
     })
     .when('/viz', {
-      templateUrl: 'views/viz.html',
+      templateUrl: 'scripts/views/viz.html',
       controller: 'VizCtrl'
     })
     .when('/stats', {
-      templateUrl: 'views/stats.html',
+      templateUrl: 'scripts/views/stats.html',
       controller: 'StatsCtrl'
     })
     .when('/demo', {
-      templateUrl: 'views/demo.html',
+      templateUrl: 'scripts/views/demo.html',
       controller: 'DemoCtrl'
     })
     .otherwise({

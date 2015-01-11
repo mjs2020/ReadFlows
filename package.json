@@ -1,10 +1,10 @@
 {
-  "name": "pocketviz",
+  "name": "ReadFlows",
   "version": "0.0.1",
   "license": "GPL v2",
   "repository": {
     "type": "git",
-    "url": "http://github.com/mjs2020/pocketviz.git"
+    "url": "http://github.com/mjs2020/ReadFlows.git"
   },
   "dependencies": {},
   "devDependencies": {

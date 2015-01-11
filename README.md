@@ -1,8 +1,8 @@
-# PocketViz
+# ReadFlows
 
 A tool for visualizing reading data fron a user's [Pocket app](http://www.getpocket.com).
 
-![Screenshot](pocketviz.png)
+![Screenshot](ReadFlows.png)
 
 ## Demo
 
@@ -23,7 +23,7 @@ installed.
 
 Download the source from the link on the right or git clone it to your computer.
 ```bash
-git clone https://github.com/mjs2020/pocketviz
+git clone https://github.com/mjs2020/ReadFlows
 ```
 
 ### Get the dependencies
@@ -56,7 +56,7 @@ Upload the contents of the ```dist``` folder to your server and access it throug
 
 ## Licence
 
-PocketViz is free software licenced under the [GNU GPL](https://www.gnu.org/licenses/gpl.html) licence.
+ReadFlows is free software licenced under the [GNU GPL](https://www.gnu.org/licenses/gpl.html) licence.
 
 ## Credits
 Checkout the [CREDITS.md](CREDITS.md) file
