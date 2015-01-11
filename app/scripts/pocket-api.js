@@ -1,7 +1,7 @@
-define(['jquery', 'lodash', 'jquery-cookie'], function($, _) {
+define(['jquery', 'lodash'], function($, _) {
 
-  // For development only:
-  var baseUrl = 'http://play.fm.to.it/pocketviz/';
+  // For development only (change to your URL if installing somewhere else):
+  var baseUrl = 'http://play.fm.to.it/ReadFlows/';
 
   var pocket = {
 
@@ -36,8 +36,8 @@ define(['jquery', 'lodash', 'jquery-cookie'], function($, _) {
 
     getReadsList : function(accessToken, callback) {
       var url = baseUrl+'proxy.php?a=getReadsList&accessToken='+accessToken,
-          lastUpdate = localStorage.getItem('pocketviz.lastUpdate'),
-          localData = JSON.parse(localStorage.getItem('pocketviz.readsList'));
+          lastUpdate = localStorage.getItem('ReadFlows.lastUpdate'),
+          localData = JSON.parse(localStorage.getItem('ReadFlows.readsList'));
       // If we already have data stored in localStorage just fetch updates by appending since parameter to the request
       if (lastUpdate) url = url+'&since='+lastUpdate;
 
@@ -53,7 +53,7 @@ define(['jquery', 'lodash', 'jquery-cookie'], function($, _) {
             if(DEBUG) console.log('Fetched full reading list. '+_.size(response.list)+' reads stored.');
           }
           try {
-            localStorage.setItem('pocketviz.readsList', localData);
+            localStorage.setItem('ReadFlows.readsList', localData);
           } catch (e) {
             console.log('Something went terribly wrong when trying to store your data!')
             if (e == QUOTA_EXCEEDED_ERR || e == NS_ERROR_DOM_QUOTA_REACHED) {
@@ -61,7 +61,7 @@ define(['jquery', 'lodash', 'jquery-cookie'], function($, _) {
               // TODO do something to handle this error!
             }
           }
-          localStorage.setItem('pocketviz.lastUpdate', response.since);
+          localStorage.setItem('ReadFlows.lastUpdate', response.since);
           callback(null);
         },
         error: function (xhr, status) {

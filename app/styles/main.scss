@@ -35,7 +35,9 @@
   font-style: normal;
 }
 
- [class^="icon-"]:before, [class*=" icon-"]:before {
+
+/* ICONS */
+[class^="icon-"]:before, [class*=" icon-"]:before {
   font-family: "myfont";
   font-style: normal;
   font-weight: normal;
@@ -65,7 +67,6 @@
   /* Uncomment for 3D effect */
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
-
 .icon-phone:before { content: '\e800'; } /* '' */
 .icon-linkedin-circled-1:before { content: '\e801'; } /* '' */
 .icon-cv:before { content: '\e802'; } /* '' */
@@ -87,17 +88,17 @@
 .icon-github:before { content: '\e816'; } /* '' */
 .icon-gplus:before { content: '\e819'; } /* '' */
 
+
+/* GENERAL  INTERFACE */
 .browsehappy {
   margin: 0.2em 0;
   background: #ccc;
   color: #000;
   padding: 0.2em 0;
 }
-
 a {
-   outline: 0;
+  outline: 0;
 }
-
 body {
   font-family: montserratregular, sans-serif;
   padding-bottom: 20px;
@@ -107,8 +108,22 @@ body {
   width: 100%;
   overflow-y: hidden;
 }
+#socialShare {
+  position: absolute;
+  bottom: 8px;
+  right: 25px;
+  font-size: 30px;
+  a {
+    color: #0b2b3e;
+    i.icon-facebook-circled:before,
+    i.icon-twitter-circled-1:before {
+      margin: 0;
+    }
+  }
+}
 
-/* Custom page header */
+
+/* HEADER AND NAVBAR */
 .header {
   .navbar {
     border-top-left-radius: 0px;
@@ -138,7 +153,6 @@ body {
     .navbar-right a:active {
       color: #0b2b3e;
     }
-
     sup {
       color: rgb(217, 37, 37);
     }
@@ -168,241 +182,248 @@ body {
   }
 }
 
-/* Main marketing message and sign up button */
-.jumbotron {
+
+/* MAIN PAGE */
+#mainPage {
   text-align: center;
   border-bottom: 1px solid #e5e5e5;
-  background: rgba(255, 255, 255, 0.75);
+  background: url(../images/ReadFlows.png);
+  background-size: cover;
+  color: #000;
 
-  .btn {
+  a:link,
+  a:visited{
+    color: rgb(14, 61, 89);
+    i {
+      color: rgb(217, 37, 37);
+    }
+  }
+  a:hover,
+  a:active{
+    color: rgb(14, 61, 89);
+    text-decoration: none;
+    i {
+      color: rgb(168, 27, 27);
+    }
+  }
+  p.lead {
+    margin-top: 1.5em;
+    text-align: right;
+  }
+  a.btn:link,
+  a.btn:visited,
+  a.btn:hover,
+  a.btn:active {
+    margin-left: 1em;
     font-size: 21px;
     padding: 14px 24px;
+    color: #fff;
   }
 }
-.login {
+#mainPageBlocks {
+  background-color: rgba(255, 255, 255, 0.74902);
+  border-radius: 6px;
+  margin-left: 0px;
+  margin-right: 0px;
+  p {
+    font-size: 20px;
+  }
+}
+
+
+/* LOGIN PAGE */
+#login {
   max-width: 40em;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.85);
   padding: 50px;
   font-size: 21px;
   font-weight: 200;
-}
-
-/* Scroll buttons */
-#scrollButtons {
-  position: absolute;
-  bottom: 8px;
-  left: 25px;
-  font-size: 30px;
-  a {
-    color: #F25C05;
-    font-family: "myfont";
-    i.icon-left-circle:before,
-    i.icon-right-circle:before {
-      margin: 0;
-    }
+  ul li i {
+    color: rgb(217, 37, 37);
   }
 }
 
-/* Social share */
-#socialShare {
-  position: absolute;
-  bottom: 8px;
-  right: 25px;
-  font-size: 30px;
-  a {
-    color: #0b2b3e;
-    i.icon-facebook-circled:before,
-    i.icon-twitter-circled-1:before {
-      margin: 0;
-    }
-  }
-}
 
-/* Main graph */
-#graphOuter {
+/* TIMELINE GRAPH */
+#TimelineGraphOuter {
   display: block;
   position: absolute;
-
   top: 0px;
   bottom: 0px;
   left: 0px;
   right: 0px;
-
   width: 100%;
   height: 100%;
-
   padding-top: 60px;
-
   overflow-x: scroll;
   overflow-y: hidden;
-
   z-index: -1;
+
+  #scrollButtons {
+    position: absolute;
+    bottom: 8px;
+    left: 25px;
+    font-size: 30px;
+    a {
+      color: #F25C05;
+      font-family: "myfont";
+      i.icon-left-circle:before,
+      i.icon-right-circle:before {
+        margin: 0;
+      }
+    }
+  }
 
   #graph {
     width: 100%;
     padding: 0;
     margin: 0;
-    svg {
+
+    #svgCanvas {
       background: rgba(255, 255, 255, 0.85);
       border-top-left-radius: 4px;
       border-top-right-radius: 4px;
-    }
-  }
+      margin: 0 16px;
 
-  #svgCanvas {
-    margin: 0 16px;
+      .readblock path {
+        fill-opacity:0.20;
+        fill-rule:nonzero;
+        stroke: none;
+        marker:none;
+        visibility:visible;
+        enable-background:accumulate
+      }
+      .readblock rect {
+        fill-opacity:0.85;
+        fill-rule:nonzero;
+        stroke: #fff;
+        stroke-width: 0.5px;
+        stroke-opacity: 1;
+        marker:none;
+        visibility:visible;
+        enable-background:accumulate
+      }
+      .readblock .col1 {
+        fill: #0E3D59;
+      }
+      .readblock .col2 {
+        fill: #88A61B;
+      }
+      .readblock .col3 {
+        fill: #F29F05;
+      }
+      .readblock .col4 {
+        fill: #F25C05;
+      }
+      .readblock .col5 {
+        fill: #D92525;
+      }
 
-    .readblock path {
-      fill-opacity:0.20;
-      fill-rule:nonzero;
-      stroke: none;
-      marker:none;
-      visibility:visible;
-      enable-background:accumulate
-    }
-    .readblock rect {
-      fill-opacity:0.85;
-      fill-rule:nonzero;
-      stroke: #fff;
-      stroke-width: 0.5px;
-      stroke-opacity: 1;
-      marker:none;
-      visibility:visible;
-      enable-background:accumulate
-    }
-    .readblock rect.added {
+      .dividers {
+        line.divider {
+          fill: none;
+          stroke: #797979;
+          stroke-width: 0.5px;
+          stroke-dasharray: 1 2;
+          shape-rendering: crispEdges;
+        }
+        line.month {
+          fill: none;
+          stroke: #000;
+          stroke-width: 1.2px;
+        }
+      }
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: #000;
+        stroke-width: 1px;
+        shape-rendering: crispEdges;
+      }
+      .axis text {
+        font-family: montserratbold, sans-serif;
+        font-size: 11px;
+      }
 
-    }
-    .readblock rect.read {
+      #addedAxisYear .tick line,
+      #readAxisYear .tick line {
+        stroke: #5d5d5d;
+      }
+      #addedAxisMonth .tick line,
+      #readAxisMonth .tick line {
+        stroke: #464646;
+      }
+      #addedAxisDay .tick line,
+      #readAxisDay .tick line {
+        stroke: #1d1d1d;
+      }
 
+      .d3-tip {
+        line-height: 1;
+        font-weight: bold;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        border-radius: 2px;
+        pointer-events: none;
+        font-size: 10px;
+        font-weight: normal;
+        max-width: 22em;
+        strong {
+          display: block;
+          border-bottom: 0.5px dotted #fff;
+          margin-bottom: 0.3em;
+        }
+        em {
+          display: block;
+          text-align: right;
+        }
+      }
+      /* Creates a small triangle extender for the tooltip */
+      .d3-tip:after {
+        box-sizing: border-box;
+        display: inline;
+        font-size: 10px;
+        width: 100%;
+        line-height: 1;
+        color: rgba(0, 0, 0, 0.8);
+        position: absolute;
+        pointer-events: none;
+      }
+      /* Northward tooltips */
+      .d3-tip.n:after {
+        content: "\25BC";
+        margin: -1px 0 0 0;
+        top: 100%;
+        left: 0;
+        text-align: center;
+      }
+      /* Eastward tooltips */
+      .d3-tip.e:after {
+        content: "\25C0";
+        margin: -4px 0 0 0;
+        top: 50%;
+        left: -8px;
+      }
+      /* Southward tooltips */
+      .d3-tip.s:after {
+        content: "\25B2";
+        margin: 0 0 1px 0;
+        top: -8px;
+        left: 0;
+        text-align: center;
+      }
+      /* Westward tooltips */
+      .d3-tip.w:after {
+        content: "\25B6";
+        margin: -4px 0 0 -1px;
+        top: 50%;
+        left: 100%;
+      }
     }
-
-
-    .readblock .col1 {
-      fill: #0E3D59;
-    }
-    .readblock .col2 {
-      fill: #88A61B;
-    }
-    .readblock .col3 {
-      fill: #F29F05;
-    }
-    .readblock .col4 {
-      fill: #F25C05;
-    }
-    .readblock .col5 {
-      fill: #D92525;
-    }
-
-  }
-
-  .dividers {
-    line.divider {
-      fill: none;
-      stroke: #797979;
-      stroke-width: 0.5px;
-      stroke-dasharray: 1 2;
-      shape-rendering: crispEdges;
-    }
-    line.month {
-      fill: none;
-      stroke: #000;
-      stroke-width: 1.2px;
-    }
-  }
-  .axis path,
-  .axis line {
-    fill: none;
-    stroke: #000;
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
-  }
-  .axis text {
-    font-family: montserratbold, sans-serif;
-    font-size: 11px;
-  }
-
-  #addedAxisYear .tick line,
-  #readAxisYear .tick line {
-    stroke: #5d5d5d;
-  }
-  #addedAxisMonth .tick line,
-  #readAxisMonth .tick line {
-    stroke: #464646;
-  }
-  #addedAxisDay .tick line,
-  #readAxisDay .tick line {
-    stroke: #1d1d1d;
   }
 }
 
 
-/* D3 tip */
-.d3-tip {
-  line-height: 1;
-  font-weight: bold;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 2px;
-  pointer-events: none;
-  font-size: 10px;
-  font-weight: normal;
-  max-width: 22em;
-  strong {
-    display: block;
-    border-bottom: 0.5px dotted #fff;
-    margin-bottom: 0.3em;
-  }
-  em {
-    display: block;
-    text-align: right;
-  }
-}
-/* Creates a small triangle extender for the tooltip */
-.d3-tip:after {
-  box-sizing: border-box;
-  display: inline;
-  font-size: 10px;
-  width: 100%;
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
-  position: absolute;
-  pointer-events: none;
-}
-/* Northward tooltips */
-.d3-tip.n:after {
-  content: "\25BC";
-  margin: -1px 0 0 0;
-  top: 100%;
-  left: 0;
-  text-align: center;
-}
-/* Eastward tooltips */
-.d3-tip.e:after {
-  content: "\25C0";
-  margin: -4px 0 0 0;
-  top: 50%;
-  left: -8px;
-}
-/* Southward tooltips */
-.d3-tip.s:after {
-  content: "\25B2";
-  margin: 0 0 1px 0;
-  top: -8px;
-  left: 0;
-  text-align: center;
-}
-/* Westward tooltips */
-.d3-tip.w:after {
-  content: "\25B6";
-  margin: -4px 0 0 -1px;
-  top: 50%;
-  left: 100%;
-}
 
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
-
-}

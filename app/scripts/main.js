@@ -19,15 +19,15 @@ require.config({
     modernizr: '../../bower_components/modernizr/modernizr',
     moment: '../../bower_components/momentjs/moment',
     jquery: '../../bower_components/jquery/dist/jquery',
-    'jquery-cookie': '../../bower_components/jquery-cookie/jquery.cookie',
     'jquery-mousewheel': '../../bower_components/jquery-mousewheel/jquery.mousewheel',
     d3: '../../bower_components/d3/d3',
     'd3-tip': '../../bower_components/d3-tip/index',
     data: 'data',
     'pocket-api': 'pocket-api',
-    oauthpopup: 'oauthpopup',
     momentjs: '../../bower_components/momentjs/moment',
-    'requirejs-text': '../../bower_components/requirejs-text/text'
+    'requirejs-text': '../../bower_components/requirejs-text/text',
+    pouchdb: '../../bower_components/pouchdb/dist/pouchdb-nightly',
+    'angular-pouchdb': '../../bower_components/angular-pouchdb/angular-pouchdb'
   },
   shim: {
     angular: {
@@ -75,6 +75,15 @@ require.config({
     },
     'simple-statistics': {
       exports: 'ss'
+    },
+    'pouchdb': {
+      exports: 'PouchDB'
+    },
+    'angular-pouchdb': {
+      deps: [
+        'angular',
+        'pouchdb'
+      ]
     }
   },
   priority: [
@@ -98,8 +107,10 @@ require([
   'angular-animate',
   'angular-touch',
   'angular-aria',
-  'angular-messages'
-], function(angular, app, ngRoutes, ngCookies, ngSanitize, ngResource, ngAnimate, ngTouch, ngAria, ngMessages) {
+  'angular-messages',
+  'angular-pouchdb',
+  'pouchdb'
+], function(angular, app, ngRoutes, ngCookies, ngSanitize, ngResource, ngAnimate, ngTouch, ngAria, ngMessages, pouchdb, PouchDB) {
   'use strict';
 
   /* jshint ignore:start */
@@ -107,6 +118,7 @@ require([
   /* jshint ignore:end */
 
   angular.element(document).ready(function() {
+    window.PouchDB = PouchDB;
     angular.resumeBootstrap([app.name]);
   });
 });

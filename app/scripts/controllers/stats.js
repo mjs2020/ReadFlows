@@ -3,12 +3,12 @@ define(['angular'], function (angular) {
 
   /**
    * @ngdoc function
-   * @name pocketvizApp.controller:StatsCtrl
+   * @name ReadFlowsApp.controller:StatsCtrl
    * @description
    * # StatsCtrl
-   * Controller of the pocketvizApp
+   * Controller of the ReadFlowsApp
    */
-  angular.module('pocketvizApp.controllers.StatsCtrl', [])
+  angular.module('ReadFlowsApp.controllers.StatsCtrl', [])
     .controller('StatsCtrl', function ($scope) {
       // TODO build stats page
     });

@@ -9,7 +9,7 @@ define(['jquery', 'moment', 'lodash', 'simple-statistics'], function($, moment, 
 
     // methods
     getData : function () {
-      this.readsList = _.chain(JSON.parse(localStorage.getItem('pocketviz.readsList')))
+      this.readsList = _.chain(JSON.parse(localStorage.getItem('ReadFlows.readsList')))
                         .toArray()
                         .sortBy(function (d) {
                           return _.parseInt(d.time_added);
