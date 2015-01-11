@@ -1,0 +1,15 @@
+<div class="alert alert-danger" role="alert" ng-hide="errorMsgHide" class="ng-hide">
+  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+  <span class="sr-only">Error:</span>
+  <spam ng-bind-html="errorMsg"></span>
+</div>
+
+<div class="center-block" id="login">
+  <ul class="list-unstyled">
+    <li ng-repeat="step in steps"><i class="glyphicon glyphicon-ok"></i> {{ step }}</li>
+  </ul>
+  <p>
+    <img src="images/rings.svg" alt="Loading image" /> {{ message }}
+  </p>
+  <a class="btn btn-primary btn-large ng-hide" href="" ng-hide="btnHide" id="continueBtn" ng-click="go()">{{ btnText }}</a>
+</div>
