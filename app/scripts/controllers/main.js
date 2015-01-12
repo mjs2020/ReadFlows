@@ -8,11 +8,10 @@ define(['angular'], function (angular) {
     options.windowName = options.windowName ||  'ConnectWithOAuth'; // should not include space for IE
     options.windowOptions = options.windowOptions || 'location=0,status=0,width=430,height=700';
     options.callback = options.callback || function(){ window.location.reload(); };
-    var that = this;
-    that._oauthWindow = window.open(options.path, options.windowName, options.windowOptions);
-    that._oauthInterval = window.setInterval(function(){
-      if (that._oauthWindow.closed) {
-        window.clearInterval(that._oauthInterval);
+    var _oauthWindow = window.open(options.path, options.windowName, options.windowOptions),
+        _oauthInterval = window.setInterval(function(){
+      if (_oauthWindow.closed) {
+        window.clearInterval(_oauthInterval);
         options.callback();
       }
     }, 500);
@@ -43,7 +42,7 @@ define(['angular'], function (angular) {
     }
 
     // Check authentication status
-    if($cookies.requestToken || $cookies.accessToken) {
+    if($cookies.accessToken) {
       $scope.leadTxt = '';
       $scope.btnText = 'Go to your visualization';
       auth = true;
@@ -59,7 +58,7 @@ define(['angular'], function (angular) {
         // go to #/login
         $location.path('/login');
       } else {
-        // get request token and then proceed to #/login
+        // get request token and then prompt for authorization and finally proceed to #/login
         Pocketdata.getRequestToken(function (err, requestToken) {   // Get request token
           if (err) {
             $scope.errorMsgHide = false;
