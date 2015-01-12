@@ -63,7 +63,7 @@ define(['angular', 'pouchdb', 'lodash'], function (angular, PouchDB, _) {
       DB.allDocs({include_docs: true})
 
         .then(function (response) {                  // Set up state and make http call
-          state.initialCount = response.total_rows;
+          state.initialCount = response.total_rows-1;
           state.dbDocs = response.rows;
           if(DEBUG) console.log('Number of documents in the local DB before update: '+state.initialCount);
 
@@ -125,7 +125,7 @@ define(['angular', 'pouchdb', 'lodash'], function (angular, PouchDB, _) {
           state.dbDocs = _.map(response.rows, function (v, i, c) {
             return v.doc;
           });
-          state.finalCount = response.total_rows;
+          state.finalCount = response.total_rows-1;
           if(DEBUG) console.log('Number of documents in the local DB after update: '+state.finalCount);
           state.lastUpdate = _.find(state.dbDocs, function (v, i, c) {
             return v._id == 'ReadFlows.lastUpdate'
