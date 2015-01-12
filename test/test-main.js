@@ -28,18 +28,16 @@ requirejs.config({
     bootstrap: '../../bower_components/bootstrap/dist/js/bootstrap',
     lodash: '../../bower_components/lodash/dist/lodash.compat',
     'simple-statistics': '../../bower_components/simple-statistics/src/simple_statistics',
-    modernizr: '../../bower_components/modernizr/modernizr',
     moment: '../../bower_components/momentjs/moment',
     jquery: '../../bower_components/jquery/dist/jquery',
-    'jquery-cookie': '../../bower_components/jquery-cookie/jquery.cookie',
     'jquery-mousewheel': '../../bower_components/jquery-mousewheel/jquery.mousewheel',
     d3: '../../bower_components/d3/d3',
     'd3-tip': '../../bower_components/d3-tip/index',
-    data: 'data',
-    'pocket-api': 'pocket-api',
-    oauthpopup: 'oauthpopup',
     momentjs: '../../bower_components/momentjs/moment',
-    'requirejs-text': '../../bower_components/requirejs-text/text'
+    'requirejs-text': '../../bower_components/requirejs-text/text',
+    pouchdb: '../../bower_components/pouchdb/dist/pouchdb',
+    'angular-pouchdb': '../../bower_components/angular-pouchdb/dist/angular-pouchdb',
+    modernizr: '../../bower_components/modernizr/modernizr'
   },
 
     shim: {
