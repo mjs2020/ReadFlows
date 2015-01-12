@@ -43,7 +43,7 @@ define(['angular'], function (angular) {
 
     checkAccessToken(function(){
       Pocketdata.hasData(function (state) {
-        $scope.steps.push($scope.message);
+        if ($scope.message) $scope.steps.push($scope.message);
         $scope.message = state ? 'Updating your latest reading data from Pocket.' : 'Retrieving your reading list from Pocket.';
         Pocketdata.getReadsList($cookies.accessToken, function (err) {
           if (err) {  // handle error
