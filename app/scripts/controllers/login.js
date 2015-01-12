@@ -11,7 +11,7 @@ define(['angular'], function (angular) {
   angular.module('ReadFlowsApp.controllers.LoginCtrl', [])
   .controller('LoginCtrl', function ($scope, $cookies, $location, Pocketdata) {
     $scope.errorMsgHide = true;
-    $scope.goBtnHide = true;
+    $scope.btnHide = true;
     $scope.steps = [];
     $scope.message = '';
 
@@ -45,7 +45,7 @@ define(['angular'], function (angular) {
       Pocketdata.hasData(function (state) {
         if ($scope.message) $scope.steps.push($scope.message);
         $scope.message = state ? 'Updating your latest reading data from Pocket.' : 'Retrieving your reading list from Pocket.';
-        Pocketdata.getReadsList($cookies.accessToken, function (err) {
+        Pocketdata.getReadsList($cookies.accessToken, function (err, data) {
           if (err) {  // handle error
             if(DEBUG) console.log('Failed getting reading list: '+err);
             $scope.errorMsgHide = false;
@@ -54,8 +54,9 @@ define(['angular'], function (angular) {
             return;
           }
           $scope.steps.push($scope.message);
+          $scope.steps.push(data.initialCount+' items were already stored locally in your browser. '+data.addedItems+' updates were fetched from the Pocket API. '+data.finalCount+' Items are now in your reading list.');
           $scope.message = 'Processing your data...';
-          Pocketdata.processData(function () {
+          Pocketdata.processData(data, function (processedData) {
             $scope.steps.push($scope.message);
             $scope.message = '';
             $scope.btnHide = false;
