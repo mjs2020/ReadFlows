@@ -70,6 +70,7 @@ define(['angular'], function (angular) {
             callback: function oauthCallback () {
               if(DEBUG) console.log('Popup closed, proceed to authenticating.');
               $location.path('/login');           // go to /login and get accessToken
+              if(!$scope.$$phase) $scope.$apply()
             }
           });
         })

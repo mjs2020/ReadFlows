@@ -56,13 +56,14 @@ define(['angular'], function (angular) {
           $scope.steps.push($scope.message);
           $scope.steps.push(data.initialCount+' items were already stored locally in your browser. '+data.addedItems+' updates were fetched from the Pocket API. '+data.finalCount+' Items are now in your reading list.');
           $scope.message = 'Processing your data...';
-          Pocketdata.processData(data, function (processedData) {
+          Pocketdata.processData(function () {
             $scope.steps.push($scope.message);
             $scope.message = '';
             $scope.btnHide = false;
             $scope.btnText = 'Continue...'
             $scope.go = function () {
               $location.path('/stats');
+              if(!$scope.$$phase) $scope.$apply()
             }
             var countdown = 5,
                 timeout = window.setInterval(function () {
