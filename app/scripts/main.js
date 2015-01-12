@@ -26,8 +26,8 @@ require.config({
     'pocket-api': 'pocket-api',
     momentjs: '../../bower_components/momentjs/moment',
     'requirejs-text': '../../bower_components/requirejs-text/text',
-    pouchdb: '../../bower_components/pouchdb/dist/pouchdb-nightly',
-    'angular-pouchdb': '../../bower_components/angular-pouchdb/angular-pouchdb'
+    pouchdb: '../../bower_components/pouchdb/dist/pouchdb',
+    'angular-pouchdb': '../../bower_components/angular-pouchdb/dist/angular-pouchdb'
   },
   shim: {
     angular: {
