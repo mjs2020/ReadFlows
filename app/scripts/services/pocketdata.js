@@ -9,13 +9,13 @@ define(['angular', 'pouchdb', 'lodash'], function (angular, PouchDB, _) {
    * Service in the ReadFlowsApp.
    */
   angular.module('ReadFlowsApp.services.Pocketdata', [])
-  .service('Pocketdata', function ($http, $cookies, pouchdb) {
+  .service('Pocketdata', function ($http, $cookies, pouchDB) {
 
     // For development only (change to your URL if installing somewhere else):
     var baseUrl = 'http://play.fm.to.it/ReadFlows/'
 
     // Create or open the DB
-    this.db = pouchdb.create('ReadFlows.readsdb');
+    this.db = pouchDB('ReadFlows.readsdb');
     var DB = this.db;
 
     // API Methods
@@ -69,47 +69,63 @@ define(['angular', 'pouchdb', 'lodash'], function (angular, PouchDB, _) {
           return $http.get(url);
         })
         .then(function success (data, status, headers, config) {
-          console.log(data);
-          var readData = _.chain(data.list)
-                          .toArray()
-                          .map(function (v, k , c) {  // Add an _id property to each item
-                            v._id = v.item_id;
-                            return v;
-                          })
-                          .value();
-          console.log('readData:');
-          console.log(readData);
-          state.added_items = readData.length;
-          state.since = data.since;
-          return DB.bulkDocs(readData, {              // Return promise with injection into pouchdb
-            new_edits : true
-          })
+          state.readData = data.data.list;
+          state.added_items = state.readData.length;
+          state.since = data.data.since;
+          return DB.allDocs()                         // Return promise to read current DB so that in the next step we can merge the two
         }, function error (data, status, headers, config) {
+          if(DEBUG) console.log('There was an error in the HTTP request to get data.');
           throw status;                               // If the http call failed throw an error
         })
-        .then(function (result) {
+        .then(function (dbItems) {
+          state.readData = _.chain(state.readData)    // We process the retrived data adding _id and _rev attributes getting the _rev from the DB
+                          .toArray()
+                          .map(function (apiDoc, k , c) {
+                            // Check if we already had the document in the DB
+                            var dbDoc = _.find(dbItems.rows, function (dbItem, i, c1) {
+                              if (typeof dbItem.item_id != 'undefined' && typeof apiDoc.item_id != 'undefined') return dbItem.item_id == apiDoc.item_id;
+                              return false;
+                            })
+                            // and if we do then get the _id and _rev into the
+                            if (typeof dbDoc != 'undefined') {
+                              apiDoc._id = dbDoc._id;
+                              apiDoc._rev = dbDoc._rev;
+                            }
+                            return apiDoc;
+                          })
+                          .value();
+          return DB.bulkDocs(state.readData)          // Return promise with injection into pouchdb
+        })
+        .then(function (err, result) {
+          if(DEBUG) console.log('Getting DB info with new total');
           return DB.info();                           // get db info with new total
         })
         .then(function (result) {
           state.final_items = result.doc_count;
+          if(DEBUG) console.log('Getting ReadFlows.lastUpdate');
           return DB.get('ReadFlows.lastUpdate');
         })
         .then(function (result) {
+          if(DEBUG) console.log('Updating ReadFlows.lastUpdate');
           return DB.put({                             // lastUpdate exists so we update it with _rev
             timestamp: state.since
           }, 'ReadFlows.lastUpdate', result._rev);
         })
         .catch(function (err) {
+          console.log(err);
+          if(DEBUG) console.log('Setting ReadFlows.lastUpdate which did not exist');
           return DB.put({                             // lastUpdate does not exist so we create it
             timestamp: state.since
           }, 'ReadFlows.lastUpdate');
         })
         .then(function (result) {
+          if(DEBUG) console.log('Update should have completed correctly, returning to login process.');
           // If we got here data has been fetched and inserted into pouchdb and we can call the callback
           callback(null,state)
         })
         .catch(function (error) {
           // Something went wrong in the http request or in the db insertion
+          if(DEBUG) console.log('Something went wrong in the http request or in the db insertion.');
           callback(error, null);
         });
     }
