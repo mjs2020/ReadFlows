@@ -1,4 +1,4 @@
-define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery-mousewheel'], function (angular, $, moment, _, data, d3) {
+define(['angular', 'jquery', 'moment', 'lodash', 'd3', 'd3-tip', 'jquery-mousewheel'], function (angular, $, moment, _, d3) {
   'use strict';
 
   /**
@@ -9,19 +9,18 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
    * Controller of the ReadFlowsApp
    */
   angular.module('ReadFlowsApp.controllers.VizCtrl', [])
-  .controller('VizCtrl', function ($scope) {
+  .controller('VizCtrl', function ($scope, Pocketdata) {
 
     // Get the data to visualize do some pre-processing
-    data.getData();
-    data.computeStats();
-    data.filterOutliers();
+    var data = Pocketdata.getData(),
+        stats = Pocketdata.getStats();
 
     // DEBUG
     if(DEBUG) {
       console.log('readsList: ');
-      console.log(data.readsList);
+      console.log(data);
       console.log('stats: ');
-      console.log(data.stats);
+      console.log(stats);
     }
 
     // Create #svgCanvas for the visualization
@@ -32,11 +31,11 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
         minBlockHeight = 1.3,
         graphHeight = svgHeight - margin.top - margin.bottom,
         yScale = d3.scale.linear()
-                         .range([0, graphHeight-40-margin.top-margin.bottom-(data.stats.adds.maxPerDay+data.stats.reads.maxPerDay)*minBlockHeight])
-                         .domain([0, data.stats.words.maxAddedPerDay+data.stats.words.maxReadPerDay]),
-        dayWidth = yScale(data.stats.words.averageLength)*2.5, // Approximate calculation
+                         .range([0, graphHeight-40-margin.top-margin.bottom-(stats.adds.maxPerDay+stats.reads.maxPerDay)*minBlockHeight])
+                         .domain([0, stats.words.maxAddedPerDay+stats.words.maxReadPerDay]),
+        dayWidth = yScale(stats.words.averageLength)*2.5, // Approximate calculation
         skewAmount = dayWidth*10,
-        svgWidth = Math.floor((data.stats.endTimestamp - data.stats.startTimestamp)/(60*60*24))*dayWidth+skewAmount,
+        svgWidth = Math.floor((stats.endTimestamp - stats.startTimestamp)/(60*60*24))*dayWidth+skewAmount,
         graphWidth = svgWidth - margin.right - margin.left,
         ReadFlows = d3.select("#graph")
                       .append("svg")
@@ -60,11 +59,11 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
     // Display scroll icons and attach behaviours
     $('#scrollButtons').show();
     $('#scrollButtons .left').click(function (evt) {
-      $('#graphOuter').animate( { scrollLeft: '-=100' }, 1000 )
+      $('#TimelineGraphOuter').animate( { scrollLeft: '-=100' }, 1000 )
       evt.preventDefault();
     });
     $('#scrollButtons .right').click(function (evt) {
-      $('#graphOuter').animate( { scrollLeft: '+=100' }, 1000 )
+      $('#TimelineGraphOuter').animate( { scrollLeft: '+=100' }, 1000 )
       evt.preventDefault();
     });
     $('#TimelineGraphOuter').mousewheel(function(evt, delta) {
@@ -76,11 +75,11 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
     // Create a xScale() functions
     var xScaleA = d3.time.scale.utc()
                          .range([0, graphWidth-margin.left-margin.right])
-                         .domain([data.stats.startTime, data.stats.endTime])
+                         .domain([stats.startTime, stats.endTime])
                          .nice(d3.time.month.utc),
         xScaleR = d3.time.scale.utc()
                          .range([skewAmount, graphWidth-margin.left-margin.right+skewAmount])
-                         .domain([data.stats.startTime, data.stats.endTime])
+                         .domain([stats.startTime, stats.endTime])
                          .nice(d3.time.month.utc);
 
     // Create the axises and draw them
@@ -167,9 +166,9 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
     var dividers = ReadFlows.append('g')
                             .attr('class','dividers')
                             .attr('transform', 'translate('+margin.left+','+(margin.top)+')'),
-        splitLineY = yScale(data.stats.words.maxAddedPerDay)+margin.top+25+data.stats.adds.maxPerDay*minBlockHeight,
+        splitLineY = yScale(stats.words.maxAddedPerDay)+margin.top+25+stats.adds.maxPerDay*minBlockHeight,
         splitLineX = (splitLineY/(graphHeight-50))*skewAmount,
-        monthLines = d3.time.month.utc.range(d3.time.month.utc.floor(data.stats.startTime), d3.time.month.utc.ceil(data.stats.endTime));
+        monthLines = d3.time.month.utc.range(d3.time.month.utc.floor(stats.startTime), d3.time.month.utc.ceil(stats.endTime));
     dividers.append('line')
             .attr('class','divider')
             .attr('x1', splitLineX)
@@ -190,8 +189,8 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
 
     // Add Tooltip, highlight, openLink and direction functions
     var chooseDir = function (d) {
-          var absX = document.getElementById('gid'+d.item_id).getBBox().x-document.getElementById('graphOuter').scrollLeft;
-          return absX > document.getElementById('graphOuter').offsetWidth/2 ? 'w' : 'e';
+          var absX = document.getElementById('gid'+d.item_id).getBBox().x-document.getElementById('TimelineGraphOuter').scrollLeft;
+          return absX > document.getElementById('TimelineGraphOuter').offsetWidth/2 ? 'w' : 'e';
         },
         tooltip = d3.tip()
                     .attr('class', 'd3-tip')
@@ -227,7 +226,7 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
 
 
     // Process points
-    data.readsList = _.map(data.readsList, function (d) {
+    data = _.map(data, function (d) {
 
       // calculate values
       d.points             = {};
@@ -275,7 +274,7 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
                              .attr('id', 'dataPlots')
                              .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
                              .selectAll('g')
-                             .data(data.readsList)
+                             .data(data)
                              .enter()
                              .append('g')
                                .attr('class', 'readblock')

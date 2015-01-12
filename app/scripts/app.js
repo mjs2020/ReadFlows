@@ -39,23 +39,23 @@ define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/mai
   .config(function ($routeProvider) {
     $routeProvider
     .when('/', {
-      templateUrl: 'scripts/views/main.html',
+      templateUrl: 'views/main.html',
       controller: 'MainCtrl'
     })
     .when('/login', {
-      templateUrl: 'scripts/views/login.html',
+      templateUrl: 'views/login.html',
       controller: 'LoginCtrl'
     })
     .when('/viz', {
-      templateUrl: 'scripts/views/viz.html',
+      templateUrl: 'views/viz.html',
       controller: 'VizCtrl'
     })
     .when('/stats', {
-      templateUrl: 'scripts/views/stats.html',
+      templateUrl: 'views/stats.html',
       controller: 'StatsCtrl'
     })
     .when('/demo', {
-      templateUrl: 'scripts/views/demo.html',
+      templateUrl: 'views/demo.html',
       controller: 'DemoCtrl'
     })
     .otherwise({

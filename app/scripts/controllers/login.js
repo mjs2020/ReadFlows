@@ -1,4 +1,4 @@
-define(['angular'], function (angular) {
+define(['angular', 'jquery'], function (angular, $) {
   'use strict';
 
   /**
@@ -62,6 +62,7 @@ define(['angular'], function (angular) {
             $scope.btnHide = false;
             $scope.btnText = 'Continue...'
             $scope.go = function () {
+              $('#userMenu').removeClass('hidden');
               $location.path('/stats');
               if(!$scope.$$phase) $scope.$apply()
             }
