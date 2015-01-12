@@ -72,18 +72,23 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
       DB.allDocs({include_docs: true})
 
         .then(function (response) {                  // Set up state and make http call
-          state.initialCount = response.total_rows-1;
+          state.initialCount = response.total_rows;
           state.dbDocs = response.rows;
           if(DEBUG) console.log('Number of documents in the local DB before update: '+state.initialCount);
 
           state.lastUpdate = _.find(state.dbDocs, function (v, i, c) {
             return v.id == 'ReadFlows.lastUpdate'
           })
-          state.lastUpdate = state.lastUpdate.doc;
+          if(state.lastUpdate) {
+            state.lastUpdate = state.lastUpdate.doc;
+            if(state.lastUpdate.timestamp) {
+              url = url+'&since='+state.lastUpdate.timestamp;
+              if(DEBUG) console.log('lastUpdate was set to '+state.lastUpdate.timestamp+' so we will fetch any new documents since then.');
+            }
+          } else {
+            if(DEBUG) console.log('There was no lastUpdate stored so we are fetching all documents from PocketAPI');
+          }
 
-          if (state.lastUpdate.timestamp) url = url+'&since='+state.lastUpdate.timestamp;
-          if(DEBUG && state.lastUpdate.timestamp) console.log('There was no lastUpdate stored so we are fetching all documents from PocketAPI');
-          if(DEBUG && state.lastUpdate.timestamp) console.log('lastUpdate was set to '+state.lastUpdate.timestamp+' so we will fetch any new documents since then.');
           if(DEBUG) console.log('Going to call: '+url);
           return $http.get(url);
         })
@@ -116,7 +121,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
         })
 
         .then(function (response) {              // Save lastUpdate value
-          if (state.lastUpdate._rev) {
+          if (state.lastUpdate && state.lastUpdate._rev) {
             if(DEBUG) console.log('Insert succeeded. Saving lastUpdate value with new revision.');
             return DB.put({ timestamp: state.since }, 'ReadFlows.lastUpdate', state.lastUpdate._rev);
           } else {
@@ -143,7 +148,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
           delete state.newData;
           delete state.since;
 
-          data = state.dbDocs;
+          data = _.filter(state.dbDocs, function (d) { return d._id != 'ReadFlows.lastUpdate'});
           callback(null, state)
         })
 
@@ -167,7 +172,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
     }
 
     this._computeStats = function () {
-      this.stats = {                        // Init stats on running of the processData method
+      var localStats = {                        // Init stats on running of the processData method
         adds : {
           maxPerDay: 0
         },
@@ -184,7 +189,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
         longestRead : 0,
         shortestRead : 0,
         startTimestamp : moment().unix(),
-        endTimestamp : 0,
+        endTimestamp : moment().unix(),
         daysAddedCounter : {},
         daysReadCounter : {},
         wordLengths: []
@@ -202,66 +207,66 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
         if (d.resolved_url) d.domain = d.resolved_url.match(r)[1];
 
         // Add data to stats object
-        this.stats.startTimestamp = Math.min(this.stats.startTimestamp, d.day_updated);
-        this.stats.endTimestamp = Math.max(this.stats.endTimestamp, d.day_updated);
+        localStats.startTimestamp = Math.min(localStats.startTimestamp, d.day_updated);
+        localStats.endTimestamp = Math.max(localStats.endTimestamp, d.day_updated);
         // Init counter for day if this is the first item
-        if (!this.stats.daysAddedCounter[d.dayAddedId]) this.stats.daysAddedCounter[d.dayAddedId] = {counter : 0, words : 0};
-        if (d.dayReadId && !this.stats.daysReadCounter[d.dayReadId]) this.stats.daysReadCounter[d.dayReadId] = {counter : 0, words : 0};
+        if (!localStats.daysAddedCounter[d.dayAddedId]) localStats.daysAddedCounter[d.dayAddedId] = {counter : 0, words : 0};
+        if (d.dayReadId && !localStats.daysReadCounter[d.dayReadId]) localStats.daysReadCounter[d.dayReadId] = {counter : 0, words : 0};
         // Add offsets (words already in the day)
-        d.addedWordOffset = this.stats.daysAddedCounter[d.dayAddedId].words;
-        d.readWordOffset = d.dayReadId ? this.stats.daysReadCounter[d.dayReadId].words : 0;
-        d.addedCountOffset = this.stats.daysAddedCounter[d.dayAddedId].counter;
-        d.readCountOffset = d.dayReadId ? this.stats.daysReadCounter[d.dayReadId].counter : 0;
+        d.addedWordOffset = localStats.daysAddedCounter[d.dayAddedId].words;
+        d.readWordOffset = d.dayReadId ? localStats.daysReadCounter[d.dayReadId].words : 0;
+        d.addedCountOffset = localStats.daysAddedCounter[d.dayAddedId].counter;
+        d.readCountOffset = d.dayReadId ? localStats.daysReadCounter[d.dayReadId].counter : 0;
         // Add all other stats
-        this.stats.daysAddedCounter[d.dayAddedId].counter += 1;
-        if (d.dayReadId) this.stats.daysReadCounter[d.dayReadId].counter += 1;
-        this.stats.daysAddedCounter[d.dayAddedId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
-        if (d.dayReadId) this.stats.daysReadCounter[d.dayReadId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
-        this.stats.adds.maxPerDay = Math.max(this.stats.adds.maxPerDay, this.stats.daysAddedCounter[d.dayAddedId].counter);
-        this.stats.words.maxAddedPerDay = Math.max(this.stats.words.maxAddedPerDay, this.stats.daysAddedCounter[d.dayAddedId].words);
-        if (d.dayReadId) this.stats.reads.maxPerDay = Math.max(this.stats.reads.maxPerDay, this.stats.daysReadCounter[d.dayReadId].counter);
-        if (d.dayReadId) this.stats.words.maxReadPerDay = Math.max(this.stats.words.maxReadPerDay, this.stats.daysReadCounter[d.dayReadId].words);
-        this.stats.totalWords += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
-        this.stats.longestRead = Math.max(this.stats.longestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
-        this.stats.shortestRead = Math.min(this.stats.shortestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
-        if (_.parseInt(d.word_count)) this.stats.wordLengths.push(_.parseInt(d.word_count));
+        localStats.daysAddedCounter[d.dayAddedId].counter += 1;
+        if (d.dayReadId) localStats.daysReadCounter[d.dayReadId].counter += 1;
+        localStats.daysAddedCounter[d.dayAddedId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
+        if (d.dayReadId) localStats.daysReadCounter[d.dayReadId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
+        localStats.adds.maxPerDay = Math.max(localStats.adds.maxPerDay, localStats.daysAddedCounter[d.dayAddedId].counter);
+        localStats.words.maxAddedPerDay = Math.max(localStats.words.maxAddedPerDay, localStats.daysAddedCounter[d.dayAddedId].words);
+        if (d.dayReadId) localStats.reads.maxPerDay = Math.max(localStats.reads.maxPerDay, localStats.daysReadCounter[d.dayReadId].counter);
+        if (d.dayReadId) localStats.words.maxReadPerDay = Math.max(localStats.words.maxReadPerDay, localStats.daysReadCounter[d.dayReadId].words);
+        localStats.totalWords += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
+        localStats.longestRead = Math.max(localStats.longestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
+        localStats.shortestRead = Math.min(localStats.shortestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
+        if (_.parseInt(d.word_count)) localStats.wordLengths.push(_.parseInt(d.word_count));
 
         // Return the updated object
         return d;
       }, this);
 
       // Find the range of time from the first timestamp to the last timestamp in the dataset
-      this.stats.startTime = new Date(this.stats.startTimestamp*1000);
-      this.stats.endTime   = new Date(this.stats.endTimestamp*1000);
+      localStats.startTime = new Date(localStats.startTimestamp*1000);
+      localStats.endTime   = new Date(localStats.endTimestamp*1000);
 
       // Compute word length stats
-      this.stats.words.averageLength = ss.mean(this.stats.wordLengths);
-      this.stats.words.modeLength = ss.mode(this.stats.wordLengths);
+      localStats.words.averageLength = ss.mean(localStats.wordLengths);
+      localStats.words.modeLength = ss.mode(localStats.wordLengths);
 
-      stats = this.stats;
+      stats = localStats;
     }
 
     this._filterOutliers = function () {
-      this.stats = stats;
+      var localStats = stats;
 
       // Do some statistics and filter out any outliers (basically batch additions for users who converted from readitlater to pocket)
-      this.stats.daysDataset = _.map(this.stats.daysAddedCounter, function (d, k, o) {
+      localStats.daysDataset = _.map(localStats.daysAddedCounter, function (d, k, o) {
         return d.counter;
       });
-      this.stats.q3 = ss.quantile(this.stats.daysDataset, 0.75);
-      this.stats.iqr = ss.iqr(this.stats.daysDataset);
-      this.stats.k = 10;                             // Configurable parameter to remove outliers which distort the distribution
-      this.stats.threshold = this.stats.q3 + this.stats.k * (this.stats.iqr);
+      localStats.q3 = ss.quantile(localStats.daysDataset, 0.75);
+      localStats.iqr = ss.iqr(localStats.daysDataset);
+      localStats.k = 10;                             // Configurable parameter to remove outliers which distort the distribution
+      localStats.threshold = localStats.q3 + localStats.k * (localStats.iqr);
 
       // Now that we have the threshold find which days need to be excluded
-      this.stats.excludeDays = [];
-      _.each(this.stats.daysAddedCounter, function (d, k, o) {
-        if (d.counter > this.stats.threshold) this.stats.excludeDays.push(k);
+      localStats.excludeDays = [];
+      _.each(localStats.daysAddedCounter, function (d, k, o) {
+        if (d.counter > localStats.threshold) localStats.excludeDays.push(k);
       },this);
-      if (this.stats.excludeDays.length > 0) {
+      if (localStats.excludeDays.length > 0) {
         // Iterate through data and remove any reads that have dayAddedId matching any value in stats.excludeDays
         data = _.filter(data, function (d, k, o) {
-          return !_.contains(this.stats.excludeDays,d.dayAddedId);
+          return !_.contains(localStats.excludeDays,d.dayAddedId);
         },this);
         // Then recompute stats
         this._computeStats();
