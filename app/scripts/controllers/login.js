@@ -1,4 +1,4 @@
-define(['angular', 'jquery'], function (angular, $) {
+define(['angular', 'jquery', 'moment'], function (angular, $, moment) {
   'use strict';
 
   /**
@@ -10,19 +10,28 @@ define(['angular', 'jquery'], function (angular, $) {
    */
   angular.module('ReadFlowsApp.controllers.LoginCtrl', [])
   .controller('LoginCtrl', function ($scope, $cookies, $location, Pocketdata) {
+
+    // Init $scope stuff
     $scope.errorMsgHide = true;
     $scope.btnHide = true;
     $scope.steps = [];
     $scope.message = '';
 
-    // Check that if we don't have a requestToken we need to go back to the authentication
-    if(!$cookies.requestToken) {               // If there is no requestToken
+    // Check for requestToken. If missing go back to the authentication.
+    if(!$cookies.requestToken) {
       $scope.message = 'You need to authenticate with Pocket first. Redirecting back home...';
-      $location.path('/');                     // go back to /
+      $location.path('/');
       return;
     }
 
-    // check for an accessToken and get one if one is not available
+    // Check for lastUpdate and skip to stats if already updated less than 1hr ago
+    if($cookies.lastUpdate && $cookies.lastUpdate > moment().unix()-3600) {
+      $scope.message = 'Your reading list was already updated less than 1hr ago. Please do not update more than once an hour.';
+      $location.path('/stats');
+      return;
+    }
+
+    // Create function to check for accessToken and get one if one is not available
     var checkAccessToken = function (callback) {
       if(!$cookies.accessToken) {
         $scope.message = 'Authorizing with Pocket';
@@ -41,6 +50,7 @@ define(['angular', 'jquery'], function (angular, $) {
       }
     }
 
+    // Check for accessToken
     checkAccessToken(function(){
       Pocketdata.hasData(function (state) {
         if ($scope.message) $scope.steps.push($scope.message);

@@ -9,7 +9,14 @@ define(['angular', 'jquery', 'moment', 'lodash', 'd3', 'd3-tip', 'jquery-mousewh
    * Controller of the ReadFlowsApp
    */
   angular.module('ReadFlowsApp.controllers.VizCtrl', [])
-  .controller('VizCtrl', function ($scope, Pocketdata) {
+  .controller('VizCtrl', function ($scope, $cookies, $location, Pocketdata) {
+
+    // Check for lastUpdate. If not present then go to /login
+    if(!$cookies.lastUpdate) {
+      if(DEBUG) console.log('No update, go back to /login.');
+      $location.path('/login');
+      return;
+    }
 
     // Get the data to visualize do some pre-processing
     var data = Pocketdata.getData(),

@@ -145,13 +145,16 @@ body {
       }
       color: #0b2b3e;
     }
-    .navbar-right a:link,
-    .navbar-right a:visited {
+    .navbar-nav a:link,
+    .navbar-nav a:visited {
       color: #0E3D59;
     }
-    .navbar-right a:hover,
-    .navbar-right a:active {
+    .navbar-nav a:hover,
+    .navbar-nav a:active {
       color: #0b2b3e;
+    }
+    .dropdown-toggle {
+      cursor: pointer;
     }
     sup {
       color: rgb(217, 37, 37);

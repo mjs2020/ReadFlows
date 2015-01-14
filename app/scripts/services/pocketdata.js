@@ -76,15 +76,10 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
           state.dbDocs = response.rows;
           if(DEBUG) console.log('Number of documents in the local DB before update: '+state.initialCount);
 
-          state.lastUpdate = _.find(state.dbDocs, function (v, i, c) {
-            return v.id == 'ReadFlows.lastUpdate'
-          })
-          if(state.lastUpdate) {
-            state.lastUpdate = state.lastUpdate.doc;
-            if(state.lastUpdate.timestamp) {
-              url = url+'&since='+state.lastUpdate.timestamp;
-              if(DEBUG) console.log('lastUpdate was set to '+state.lastUpdate.timestamp+' so we will fetch any new documents since then.');
-            }
+          if($cookies.lastUpdate) {
+            state.lastUpdate = $cookies.lastUpdate;
+            url = url+'&since='+state.lastUpdate;
+            if(DEBUG) console.log('lastUpdate was set to '+state.lastUpdate+' so we will fetch any new documents since then.');
           } else {
             if(DEBUG) console.log('There was no lastUpdate stored so we are fetching all documents from PocketAPI');
           }
@@ -120,18 +115,9 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
           throw response.status;                               // If the http call failed throw an error
         })
 
-        .then(function (response) {              // Save lastUpdate value
-          if (state.lastUpdate && state.lastUpdate._rev) {
-            if(DEBUG) console.log('Insert succeeded. Saving lastUpdate value with new revision.');
-            return DB.put({ timestamp: state.since }, 'ReadFlows.lastUpdate', state.lastUpdate._rev);
-          } else {
-            if(DEBUG) console.log('Insert succeeded. Saving lastUpdate value.');
-            return DB.put({ timestamp: state.since }, 'ReadFlows.lastUpdate');
-          }
-        })
-
-        .then(function (response) {              // Get final DB list
-          if(DEBUG) console.log('lastUpdate saved. Getting final DB element list.');
+        .then(function (response) {              // Save new lastUpdate and get all documents back
+          if(DEBUG) console.log('Insert succeeded. Getting final DB element list.');
+          $cookies.lastUpdate = state.since;
           return DB.allDocs({include_docs: true})
         })
 
@@ -141,14 +127,9 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
           });
           state.finalCount = response.total_rows-1;
           if(DEBUG) console.log('Number of documents in the local DB after update: '+state.finalCount);
-          state.lastUpdate = _.find(state.dbDocs, function (v, i, c) {
-            return v._id == 'ReadFlows.lastUpdate'
-          })
-          state.lastUpdate = state.lastUpdate.timestamp;
           delete state.newData;
           delete state.since;
 
-          data = _.filter(state.dbDocs, function (d) { return d._id != 'ReadFlows.lastUpdate'});
           callback(null, state)
         })
 
