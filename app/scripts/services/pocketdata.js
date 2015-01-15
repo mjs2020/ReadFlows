@@ -19,6 +19,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
         data  = [],
         stats = {};
 
+    // API Methods
     this.getData = function(){
       return data;
     }
@@ -27,7 +28,6 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
       return stats;
     }
 
-    // API Methods
     this.hasData = function (callback) {
       DB.info()
         .then(function (info) {
@@ -69,7 +69,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
 
       if(DEBUG) console.log('Initiated get read list procedure');
 
-      DB.allDocs({include_docs: true})
+      DB.allDocs()
 
         .then(function (response) {                  // Set up state and make http call
           state.initialCount = response.total_rows;
@@ -96,17 +96,12 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
 
           // Add _id and _rev to all the newData items before injecting them so that existing docs update correctly.
           state.newData = _.map(state.newData, function (apiDoc, k , c) {
-                            var dbDoc = _.find(state.dbDocs, function (dbItem, k1, c1) {
-                              if (typeof dbItem.doc.item_id != 'undefined' && typeof apiDoc.item_id != 'undefined') return dbItem.doc.item_id == apiDoc.item_id;
-                              return false;
-                            })
-                            // and if we do then get the _id and _rev into the document for addition
-                            if (typeof dbDoc != 'undefined') {
-                              apiDoc._id = dbDoc.doc._id;
-                              apiDoc._rev = dbDoc.doc._rev;
-                            } else {                 // If it's a new doc then set it's _id anyhow
-                              apiDoc._id = apiDoc.item_id;
-                            }
+                            _.each(state.dbDocs, function (dbItem, k1, c1) {
+                              if (dbItem.id && apiDoc.item_id && dbItem.value.rev && dbItem.id == apiDoc.item_id) {
+                                apiDoc._id = dbItem.id;
+                                apiDoc._rev = dbItem.value.rev;
+                              }
+                            });
                             return apiDoc;
                           });
           return DB.bulkDocs(state.newData);          // Return promise with injection into pouchdb
@@ -228,7 +223,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
     }
 
     this._filterOutliers = function () {
-      var localStats = stats;
+      var localStats = stats;             // Create a local instance of stats.
 
       // Do some statistics and filter out any outliers (basically batch additions for users who converted from readitlater to pocket)
       localStats.daysDataset = _.map(localStats.daysAddedCounter, function (d, k, o) {
