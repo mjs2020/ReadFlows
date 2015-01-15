@@ -140,7 +140,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
       this._computeStats();
       this._filterOutliers();
 
-      callback()
+      callback();
     }
 
     this.getDemoList = function () {
@@ -239,29 +239,18 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
       _.each(localStats.daysAddedCounter, function (d, k, o) {
         if (d.counter > localStats.threshold) localStats.excludeDays.push(k);
       },this);
+
+      // Iterate through data and remove any reads that have dayAddedId matching any value in stats.excludeDays
       if (localStats.excludeDays.length > 0) {
-        // Iterate through data and remove any reads that have dayAddedId matching any value in stats.excludeDays
         data = _.filter(data, function (d, k, o) {
           return !_.contains(localStats.excludeDays,d.dayAddedId);
         },this);
+
         // Then recompute stats
         this._computeStats();
       }
+
     }
 
-
-    /*
-     * Do NLP
-     * Best option probably is:
-     *  https://github.com/wooorm/retext-keywords
-     *  and https://github.com/wooorm/retext
-     *
-     * Alternatives:
-     *  https://github.com/kimchouard/keyword-extract
-     *  https://github.com/michaeldelorenzo/keyword-extractor
-     *  https://github.com/harthur/glossary
-     * Or browserify
-     *  https://www.npmjs.org/package/gramophone
-     * */
   });
 });
