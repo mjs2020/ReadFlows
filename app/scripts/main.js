@@ -25,7 +25,9 @@ require.config({
     'requirejs-text': '../../bower_components/requirejs-text/text',
     pouchdb: '../../bower_components/pouchdb/dist/pouchdb',
     'angular-pouchdb': '../../bower_components/angular-pouchdb/dist/angular-pouchdb',
-    modernizr: '../../bower_components/modernizr/modernizr'
+    modernizr: '../../bower_components/modernizr/modernizr',
+    dc: '../../bower_components/dcjs/dc',
+    crossfilter: '../../bower_components/crossfilter/crossfilter'
   },
   shim: {
     angular: {
