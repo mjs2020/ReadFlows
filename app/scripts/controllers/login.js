@@ -25,7 +25,7 @@ define(['angular', 'jquery', 'moment'], function (angular, $, moment) {
     }
 
     // Check for lastUpdate and skip to stats if already updated less than 1hr ago
-    if($cookies.lastUpdate && $cookies.lastUpdate > moment().unix()-3600) {
+    if(!DEBUG && $cookies.lastUpdate && $cookies.lastUpdate > moment().unix()-3600) {
       $scope.message = 'Your reading list was already updated less than 1hr ago. Please do not update more than once an hour.';
       $location.path('/stats');
       return;
@@ -64,7 +64,7 @@ define(['angular', 'jquery', 'moment'], function (angular, $, moment) {
             return;
           }
           $scope.steps.push($scope.message);
-          $scope.steps.push(data.initialCount+' items were already stored locally in your browser. '+data.addedItems+' updates were fetched from the Pocket API. '+data.finalCount+' Items are now in your reading list.');
+          $scope.steps.push('Some items were already stored locally in your browser. Updates were fetched from the Pocket API.');
           $scope.message = 'Processing your data...';
           Pocketdata.processData(function () {
             $scope.steps.push($scope.message);
