@@ -24,13 +24,6 @@ define(['angular', 'jquery', 'moment'], function (angular, $, moment) {
       return;
     }
 
-    // Check for lastUpdate and skip to stats if already updated less than 1hr ago
-    if(!DEBUG && $cookies.lastUpdate && $cookies.lastUpdate > moment().unix()-3600) {
-      $scope.message = 'Your reading list was already updated less than 1hr ago. Please do not update more than once an hour.';
-      $location.path('/stats');
-      return;
-    }
-
     // Create function to check for accessToken and get one if one is not available
     var checkAccessToken = function (callback) {
       if(!$cookies.accessToken) {
