@@ -35,7 +35,9 @@
   font-style: normal;
 }
 
- [class^="icon-"]:before, [class*=" icon-"]:before {
+
+/* ICONS */
+[class^="icon-"]:before, [class*=" icon-"]:before {
   font-family: "myfont";
   font-style: normal;
   font-weight: normal;
@@ -65,7 +67,6 @@
   /* Uncomment for 3D effect */
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
-
 .icon-phone:before { content: '\e800'; } /* '' */
 .icon-linkedin-circled-1:before { content: '\e801'; } /* '' */
 .icon-cv:before { content: '\e802'; } /* '' */
@@ -87,17 +88,17 @@
 .icon-github:before { content: '\e816'; } /* '' */
 .icon-gplus:before { content: '\e819'; } /* '' */
 
+
+/* GENERAL  INTERFACE */
 .browsehappy {
   margin: 0.2em 0;
   background: #ccc;
   color: #000;
   padding: 0.2em 0;
 }
-
 a {
-   outline: 0;
+  outline: 0;
 }
-
 body {
   font-family: montserratregular, sans-serif;
   padding-bottom: 20px;
@@ -105,10 +106,23 @@ body {
   background-size: cover;
   height: 100%;
   width: 100%;
-  overflow-y: hidden;
+}
+#socialShare {
+  position: fixed;
+  bottom: 8px;
+  right: 25px;
+  font-size: 30px;
+  a {
+    color: #0b2b3e;
+    i.icon-facebook-circled:before,
+    i.icon-twitter-circled-1:before {
+      margin: 0;
+    }
+  }
 }
 
-/* Custom page header */
+
+/* HEADER AND NAVBAR */
 .header {
   .navbar {
     border-top-left-radius: 0px;
@@ -130,15 +144,17 @@ body {
       }
       color: #0b2b3e;
     }
-    .navbar-right a:link,
-    .navbar-right a:visited {
+    .navbar-nav a:link,
+    .navbar-nav a:visited {
       color: #0E3D59;
     }
-    .navbar-right a:hover,
-    .navbar-right a:active {
+    .navbar-nav a:hover,
+    .navbar-nav a:active {
       color: #0b2b3e;
     }
-
+    .dropdown-toggle {
+      cursor: pointer;
+    }
     sup {
       color: rgb(217, 37, 37);
     }
@@ -168,27 +184,171 @@ body {
   }
 }
 
-/* Main marketing message and sign up button */
-.jumbotron {
+
+/* MAIN PAGE */
+#mainPage {
   text-align: center;
   border-bottom: 1px solid #e5e5e5;
-  background: rgba(255, 255, 255, 0.75);
+  background: url(../images/ReadFlows.png);
+  background-size: cover;
+  color: #000;
 
-  .btn {
+  a:link,
+  a:visited{
+    color: rgb(14, 61, 89);
+    i {
+      color: rgb(217, 37, 37);
+    }
+  }
+  a:hover,
+  a:active{
+    color: rgb(14, 61, 89);
+    text-decoration: none;
+    i {
+      color: rgb(168, 27, 27);
+    }
+  }
+  p.lead {
+    margin-top: 1.5em;
+    text-align: right;
+  }
+  a.btn:link,
+  a.btn:visited,
+  a.btn:hover,
+  a.btn:active {
+    margin-left: 1em;
     font-size: 21px;
     padding: 14px 24px;
+    color: #fff;
   }
 }
-.login {
+#mainPageBlocks {
+  background-color: rgba(255, 255, 255, 0.74902);
+  border-radius: 6px;
+  margin-left: 0px;
+  margin-right: 0px;
+  p {
+    font-size: 20px;
+  }
+}
+
+
+/* LOGIN PAGE */
+#login {
   max-width: 40em;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.85);
   padding: 50px;
   font-size: 21px;
   font-weight: 200;
+  ul li i {
+    color: rgb(217, 37, 37);
+  }
 }
 
-/* Scroll buttons */
+
+/* TIMELINE GRAPH */
+#TimelineGraphOuter {
+  display: block;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+  padding-top: 60px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  z-index: -1;
+
+  #graph {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+
+    #svgCanvas {
+      background: rgba(255, 255, 255, 0.85);
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      margin: 0 16px;
+
+      .readblock path {
+        fill-opacity:0.20;
+        fill-rule:nonzero;
+        stroke: none;
+        marker:none;
+        visibility:visible;
+        enable-background:accumulate
+      }
+      .readblock rect {
+        fill-opacity:0.85;
+        fill-rule:nonzero;
+        stroke: #fff;
+        stroke-width: 0.5px;
+        stroke-opacity: 1;
+        marker:none;
+        visibility:visible;
+        enable-background:accumulate
+      }
+      .readblock .col1 {
+        fill: #0E3D59;
+      }
+      .readblock .col2 {
+        fill: #88A61B;
+      }
+      .readblock .col3 {
+        fill: #F29F05;
+      }
+      .readblock .col4 {
+        fill: #F25C05;
+      }
+      .readblock .col5 {
+        fill: #D92525;
+      }
+
+      .dividers {
+        line.divider {
+          fill: none;
+          stroke: #797979;
+          stroke-width: 0.5px;
+          stroke-dasharray: 1 2;
+          shape-rendering: crispEdges;
+        }
+        line.month {
+          fill: none;
+          stroke: #ccc;
+          stroke-width: 0.8px;
+        }
+      }
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: #000;
+        stroke-width: 1px;
+        shape-rendering: crispEdges;
+      }
+      .axis text {
+        font-family: montserratbold, sans-serif;
+        font-size: 11px;
+      }
+
+      #addedAxisYear .tick line,
+      #readAxisYear .tick line {
+        stroke: #5d5d5d;
+      }
+      #addedAxisMonth .tick line,
+      #readAxisMonth .tick line {
+        stroke: #464646;
+      }
+      #addedAxisDay .tick line,
+      #readAxisDay .tick line {
+        stroke: #1d1d1d;
+      }
+    }
+  }
+}
+
 #scrollButtons {
   position: absolute;
   bottom: 8px;
@@ -204,141 +364,6 @@ body {
   }
 }
 
-/* Social share */
-#socialShare {
-  position: absolute;
-  bottom: 8px;
-  right: 25px;
-  font-size: 30px;
-  a {
-    color: #0b2b3e;
-    i.icon-facebook-circled:before,
-    i.icon-twitter-circled-1:before {
-      margin: 0;
-    }
-  }
-}
-
-/* Main graph */
-#graphOuter {
-  display: block;
-  position: absolute;
-
-  top: 0px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-
-  width: 100%;
-  height: 100%;
-
-  padding-top: 60px;
-
-  overflow-x: scroll;
-  overflow-y: hidden;
-
-  z-index: -1;
-
-  #graph {
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    svg {
-      background: rgba(255, 255, 255, 0.85);
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
-    }
-  }
-
-  #svgCanvas {
-    margin: 0 16px;
-
-    .readblock path {
-      fill-opacity:0.20;
-      fill-rule:nonzero;
-      stroke: none;
-      marker:none;
-      visibility:visible;
-      enable-background:accumulate
-    }
-    .readblock rect {
-      fill-opacity:0.85;
-      fill-rule:nonzero;
-      stroke: #fff;
-      stroke-width: 0.5px;
-      stroke-opacity: 1;
-      marker:none;
-      visibility:visible;
-      enable-background:accumulate
-    }
-    .readblock rect.added {
-
-    }
-    .readblock rect.read {
-
-    }
-
-
-    .readblock .col1 {
-      fill: #0E3D59;
-    }
-    .readblock .col2 {
-      fill: #88A61B;
-    }
-    .readblock .col3 {
-      fill: #F29F05;
-    }
-    .readblock .col4 {
-      fill: #F25C05;
-    }
-    .readblock .col5 {
-      fill: #D92525;
-    }
-
-  }
-
-  .dividers {
-    line.divider {
-      fill: none;
-      stroke: #797979;
-      stroke-width: 0.5px;
-      stroke-dasharray: 1 2;
-      shape-rendering: crispEdges;
-    }
-    line.month {
-      fill: none;
-      stroke: #000;
-      stroke-width: 1.2px;
-    }
-  }
-  .axis path,
-  .axis line {
-    fill: none;
-    stroke: #000;
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
-  }
-  .axis text {
-    font-family: montserratbold, sans-serif;
-    font-size: 11px;
-  }
-
-  #addedAxisYear .tick line,
-  #readAxisYear .tick line {
-    stroke: #5d5d5d;
-  }
-  #addedAxisMonth .tick line,
-  #readAxisMonth .tick line {
-    stroke: #464646;
-  }
-  #addedAxisDay .tick line,
-  #readAxisDay .tick line {
-    stroke: #1d1d1d;
-  }
-}
-
-
-/* D3 tip */
 .d3-tip {
   line-height: 1;
   font-weight: bold;
@@ -402,7 +427,26 @@ body {
   left: 100%;
 }
 
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
 
+/* STATS VIZ */
+div.statistics {
+  p {
+    font-size: 14px;
+  }
+}
+div.patternsButton {
+  position: relative;
+  background: top left no-repeat url('../images/ReadingPatterns.png');
+  cursor: pointer;
+  height: 162px;
+
+  a.patternsLink {
+    padding: 1px 1em;
+    color: #fff;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    display: block;
+    background-color: rgba(57, 57, 57, 0.6);
+  }
 }

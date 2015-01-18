@@ -3,11 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Pocket Reads</title>
+    <title>ReadFlows</title>
     <meta name="description" content="A d3js data visualization of your pocket reads.">
     <meta name="viewport" content="width=device-width">
-    <link rel="shortcut icon" href="favicon.ico">
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png">
+
     <!-- build:css(.) styles/vendor.css -->
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
@@ -18,7 +22,7 @@
     <!-- endbuild -->
   </head>
 
-  <body ng-app="pocketvizApp">
+  <body ng-app="ReadFlowsApp">
     <!--[if lt IE 10]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -36,7 +40,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="#"><i class="icon-pocket"></i> PocketViz<sup>(Beta)</sup></a>
+              <a class="navbar-brand" href="#"><img src="images/logo.png" style="display: inline"> ReadFlows<sup> (Beta)</sup></a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -44,10 +48,10 @@
 
               <ul class="nav navbar-nav hidden" id="userMenu">
                 <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Welcome {{ username }}<span class="caret"></span></a>
+                  <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Your reading<span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
-                    <li><a href="/viz">Read patterns</a></li>
-                    <li><a href="/stats">Read statistics</a></li>
+                    <li><a href="#/viz">Pattern visualization</a></li>
+                    <li><a href="#/stats">Reading statistics</a></li>
                   </ul>
                 </li>
               </ul>
@@ -90,20 +94,14 @@
     <!-- End Piwik Code -->
 
     <!-- Fork me on Github ribbon-->
-    <a href="https://github.com/mjs2020/pocketviz" target="_blank">
+    <a href="https://github.com/mjs2020/ReadFlows" target="_blank">
       <img style="position: absolute; top: 0; right: 0; border: 0;" src="images/github.png" alt="Fork me on GitHub">
     </a>
 
-    <!-- Scroll buttons -->
-    <div id="scrollButtons">
-      <a data-toggle="tooltip" data-placement="top" class="mytooltip left" href="#" title="Scroll left"><i class="icon-left-circle"></i></a>
-      <a data-toggle="tooltip" data-placement="top" class="mytooltip right" href="#" title="Scroll right"><i class="icon-right-circle"></i></a>
-    </div>
-
     <!-- Share buttons -->
     <div id="socialShare">
-      <a data-toggle="tooltip" data-placement="top" class="mytooltip" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fplay.fm.to.it%2fpocketviz &t=Pocket+Reads+Visualization" title="Share me on Facebook"><i class="icon-facebook-circled"></i></a>
-      <a data-toggle="tooltip" data-placement="top" class="mytooltip" href="https://twitter.com/share?url=http%3a%2f%2fplay.fm.to.it%2fpocketviz &text=Pocket+Reads+Visualization" title="Share me on Twitter"><i class="icon-twitter-circled-1"></i></a>
+      <a data-toggle="tooltip" data-placement="top" class="mytooltip" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fplay.fm.to.it%2fReadFlows &t=Pocket+Reads+Visualization" title="Share me on Facebook"><i class="icon-facebook-circled"></i></a>
+      <a data-toggle="tooltip" data-placement="top" class="mytooltip" href="https://twitter.com/share?url=http%3a%2f%2fplay.fm.to.it%2fReadFlows &text=Pocket+Reads+Visualization" title="Share me on Twitter"><i class="icon-twitter-circled-1"></i></a>
     </div>
 
   </body>

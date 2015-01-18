@@ -1,27 +1,33 @@
-define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery-mousewheel'], function (angular, $, moment, _, data, d3) {
+define(['angular', 'jquery', 'moment', 'lodash', 'd3', 'd3-tip', 'jquery-mousewheel'], function (angular, $, moment, _, d3) {
   'use strict';
 
   /**
    * @ngdoc function
-   * @name pocketvizApp.controller:VizCtrl
+   * @name ReadFlowsApp.controller:VizCtrl
    * @description
    * # VizCtrl
-   * Controller of the pocketvizApp
+   * Controller of the ReadFlowsApp
    */
-  angular.module('pocketvizApp.controllers.VizCtrl', [])
-  .controller('VizCtrl', function ($scope) {
+  angular.module('ReadFlowsApp.controllers.VizCtrl', [])
+  .controller('VizCtrl', function ($scope, $cookies, $location, Pocketdata) {
+
+    // Check for lastUpdate. If not present then go to /login
+    if(!$cookies.lastUpdate) {
+      if(DEBUG) console.log('No update, go back to /login.');
+      $location.path('/login');
+      return;
+    }
 
     // Get the data to visualize do some pre-processing
-    data.getData();
-    data.computeStats();
-    data.filterOutliers();
+    var data = Pocketdata.getData(),
+        stats = Pocketdata.getStats();
 
     // DEBUG
     if(DEBUG) {
       console.log('readsList: ');
-      console.log(data.readsList);
+      console.log(data);
       console.log('stats: ');
-      console.log(data.stats);
+      console.log(stats);
     }
 
     // Create #svgCanvas for the visualization
@@ -32,13 +38,13 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
         minBlockHeight = 1.3,
         graphHeight = svgHeight - margin.top - margin.bottom,
         yScale = d3.scale.linear()
-                         .range([0, graphHeight-40-margin.top-margin.bottom-(data.stats.adds.maxPerDay+data.stats.reads.maxPerDay)*minBlockHeight])
-                         .domain([0, data.stats.words.maxAddedPerDay+data.stats.words.maxReadPerDay]),
-        dayWidth = yScale(data.stats.words.averageLength)*2.5, // Approximate calculation
+                         .range([0, graphHeight-40-margin.top-margin.bottom-(stats.adds.maxPerDay+stats.reads.maxPerDay)*minBlockHeight])
+                         .domain([0, stats.words.maxAddedPerDay+stats.words.maxReadPerDay]),
+        dayWidth = yScale(stats.words.averageLength)*2.5, // Approximate calculation
         skewAmount = dayWidth*10,
-        svgWidth = Math.floor((data.stats.endTimestamp - data.stats.startTimestamp)/(60*60*24))*dayWidth+skewAmount,
+        svgWidth = Math.floor((stats.endTimestamp - stats.startTimestamp)/(60*60*24))*dayWidth+skewAmount,
         graphWidth = svgWidth - margin.right - margin.left,
-        pocketviz = d3.select("#graph")
+        ReadFlows = d3.select("#graph")
                       .append("svg")
                       .attr('id', 'svgCanvas')
                       .attr('width', svgWidth)
@@ -60,14 +66,14 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
     // Display scroll icons and attach behaviours
     $('#scrollButtons').show();
     $('#scrollButtons .left').click(function (evt) {
-      $('#graphOuter').animate( { scrollLeft: '-=100' }, 1000 )
+      $('#TimelineGraphOuter').animate( { scrollLeft: '-=100' }, 1000 )
       evt.preventDefault();
     });
     $('#scrollButtons .right').click(function (evt) {
-      $('#graphOuter').animate( { scrollLeft: '+=100' }, 1000 )
+      $('#TimelineGraphOuter').animate( { scrollLeft: '+=100' }, 1000 )
       evt.preventDefault();
     });
-    $('#graphOuter').mousewheel(function(evt, delta) {
+    $('#TimelineGraphOuter').mousewheel(function(evt, delta) {
       this.scrollLeft -= (delta * 30);
       evt.preventDefault();
     });
@@ -76,11 +82,11 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
     // Create a xScale() functions
     var xScaleA = d3.time.scale.utc()
                          .range([0, graphWidth-margin.left-margin.right])
-                         .domain([data.stats.startTime, data.stats.endTime])
+                         .domain([stats.startTime, stats.endTime])
                          .nice(d3.time.month.utc),
         xScaleR = d3.time.scale.utc()
                          .range([skewAmount, graphWidth-margin.left-margin.right+skewAmount])
-                         .domain([data.stats.startTime, data.stats.endTime])
+                         .domain([stats.startTime, stats.endTime])
                          .nice(d3.time.month.utc);
 
     // Create the axises and draw them
@@ -88,7 +94,7 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
                        .scale(xScaleA),
         xAxisR = d3.svg.axis()
                        .scale(xScaleR),
-        addedAxisYear = pocketviz.append("g")
+        addedAxisYear = ReadFlows.append("g")
                                   .attr('id', 'addedAxisYear')
                                   .attr("class", "axis")
                                   .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
@@ -101,7 +107,7 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
                                   .attr('y', -17)
                                   .attr('x', 5)
                                   .attr('style', 'text-anchor: left'),
-        addedAxisMonth = pocketviz.append("g")
+        addedAxisMonth = ReadFlows.append("g")
                                   .attr('id', 'addedAxisMonth')
                                   .attr("class", "axis")
                                   .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
@@ -114,7 +120,7 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
                                   .attr('y', -7)
                                   .attr('x', 5)
                                   .attr('style', 'text-anchor: left'),
-        addedAxisDay = pocketviz.append("g")
+        addedAxisDay = ReadFlows.append("g")
                                   .attr('id', 'addedAxisDay')
                                   .attr("class", "axis")
                                   .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
@@ -125,7 +131,7 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
                                         )
                                   .selectAll('text')
                                   .remove(),
-        readAxisYear = pocketviz.append("g")
+        readAxisYear = ReadFlows.append("g")
                                  .attr('id', 'readAxisYear')
                                  .attr("class", "axis")
                                  .attr('transform', 'translate('+margin.left+','+(graphHeight-margin.top-margin.bottom-10)+')')
@@ -138,7 +144,7 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
                                  .attr('y', 17)
                                  .attr('x', 5)
                                  .attr('style', 'text-anchor: left'),
-        readAxisMonth = pocketviz.append("g")
+        readAxisMonth = ReadFlows.append("g")
                                  .attr('id', 'readAxisMonth')
                                  .attr("class", "axis")
                                  .attr('transform', 'translate('+margin.left+','+(graphHeight-margin.top-margin.bottom-10)+')')
@@ -151,7 +157,7 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
                                  .attr('y', 7)
                                  .attr('x', 5)
                                  .attr('style', 'text-anchor: left'),
-        readAxisDay = pocketviz.append("g")
+        readAxisDay = ReadFlows.append("g")
                                  .attr('id', 'readAxisDay')
                                  .attr("class", "axis")
                                  .attr('transform', 'translate('+margin.left+','+(graphHeight-margin.top-margin.bottom-10)+')')
@@ -164,12 +170,12 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
                                  .remove();
 
     // Add boxes to highlight adds and reads together with text
-    var dividers = pocketviz.append('g')
+    var dividers = ReadFlows.append('g')
                             .attr('class','dividers')
                             .attr('transform', 'translate('+margin.left+','+(margin.top)+')'),
-        splitLineY = yScale(data.stats.words.maxAddedPerDay)+margin.top+25+data.stats.adds.maxPerDay*minBlockHeight,
+        splitLineY = yScale(stats.words.maxAddedPerDay)+margin.top+25+stats.adds.maxPerDay*minBlockHeight,
         splitLineX = (splitLineY/(graphHeight-50))*skewAmount,
-        monthLines = d3.time.month.utc.range(d3.time.month.utc.floor(data.stats.startTime), d3.time.month.utc.ceil(data.stats.endTime));
+        monthLines = d3.time.month.utc.range(d3.time.month.utc.floor(stats.startTime), d3.time.month.utc.ceil(stats.endTime));
     dividers.append('line')
             .attr('class','divider')
             .attr('x1', splitLineX)
@@ -190,8 +196,8 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
 
     // Add Tooltip, highlight, openLink and direction functions
     var chooseDir = function (d) {
-          var absX = document.getElementById('gid'+d.item_id).getBBox().x-document.getElementById('graphOuter').scrollLeft;
-          return absX > document.getElementById('graphOuter').offsetWidth/2 ? 'w' : 'e';
+          var absX = document.getElementById('gid'+d.item_id).getBBox().x-document.getElementById('TimelineGraphOuter').scrollLeft;
+          return absX > document.getElementById('TimelineGraphOuter').offsetWidth/2 ? 'w' : 'e';
         },
         tooltip = d3.tip()
                     .attr('class', 'd3-tip')
@@ -209,13 +215,13 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
                     }),
         highlight = function(op) {          // function returns an event handler
           return function (g,i) {
-            pocketviz.selectAll('g.readblock')
+            ReadFlows.selectAll('g.readblock')
                      .filter(function (d) {
                        return d.item_id != g.item_id;
                      })
                      .interrupt().transition().duration(500)
                      .style('opacity', (op == "on" ? '0.2' : '1') );
-            pocketviz.select('g#gid'+g.item_id+' path')
+            ReadFlows.select('g#gid'+g.item_id+' path')
                      .interrupt().transition().duration(500)
                      .style('fill-opacity', (op == "on" ? '1' : '0.1') );
           }
@@ -223,11 +229,11 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
         openLink = function (url) {
           window.open(url, 'article')
         };
-    pocketviz.call(tooltip);
+    ReadFlows.call(tooltip);
 
 
     // Process points
-    data.readsList = _.map(data.readsList, function (d) {
+    data = _.map(data, function (d) {
 
       // calculate values
       d.points             = {};
@@ -271,11 +277,11 @@ define(['angular', 'jquery', 'moment', 'lodash', 'data', 'd3', 'd3-tip', 'jquery
     });
 
     // Draw the data
-    var dataPlots = pocketviz.append("g")
+    var dataPlots = ReadFlows.append("g")
                              .attr('id', 'dataPlots')
                              .attr('transform', 'translate('+margin.left+','+(margin.top+25)+')')
                              .selectAll('g')
-                             .data(data.readsList)
+                             .data(data)
                              .enter()
                              .append('g')
                                .attr('class', 'readblock')

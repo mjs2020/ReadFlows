@@ -68,7 +68,7 @@ module.exports = function (grunt) {
 
         // By default, this task will crawl your project for references to Modernizr tests.
         // Set to false to disable.
-        "parseFiles" : true,
+        "parseFiles" : false,
 
         // When parseFiles = true, this task will crawl all *.js, *.css, *.scss and *.sass files,
         // except files that are in node_modules/.

@@ -3,12 +3,12 @@ define(['angular'], function (angular) {
 
   /**
    * @ngdoc function
-   * @name pocketvizApp.controller:DemoCtrl
+   * @name ReadFlowsApp.controller:DemoCtrl
    * @description
    * # DemoCtrl
-   * Controller of the pocketvizApp
+   * Controller of the ReadFlowsApp
    */
-  angular.module('pocketvizApp.controllers.DemoCtrl', [])
+  angular.module('ReadFlowsApp.controllers.DemoCtrl', [])
     .controller('DemoCtrl', function ($scope) {
       // TODO setup demo using static SVG, appropriately anonymized, perhaps?
     });

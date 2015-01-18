@@ -3,12 +3,12 @@ define(['angular', 'jquery', 'bootstrap', 'text!../../views/about.html', 'text!.
 
   /**
    * @ngdoc function
-   * @name pocketvizApp.controller:NavbarCtrl
+   * @name ReadFlowsApp.controller:NavbarCtrl
    * @description
    * # NavbarCtrl
-   * Controller of the pocketvizApp
+   * Controller of the ReadFlowsApp
    */
-  angular.module('pocketvizApp.controllers.NavbarCtrl', [])
+  angular.module('ReadFlowsApp.controllers.NavbarCtrl', [])
   .controller('NavbarCtrl', function ($scope) {
     $('#navbarModal').modal({
       keyboard: false,

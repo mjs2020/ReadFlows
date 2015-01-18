@@ -1,10 +1,25 @@
-<div class="jumbotron">
-  <h1>Pocket Reads Visualization</h1>
-  <p class="lead">
-    This app will load the list of your reads from <a href="https://getpocket.com" target="_blank">Pocket</a> and visualize them. To do so you need to authenticate with Pocket and grant the app access to your reading list.
-  </p>
-  <p><a class="btn btn-primary btn-large" href="" id="authBtn" ng-click="startAuth()">Authorize pocket app</a></p>
-  <p class="lead">
-    Don't have a Pocket account but curious about this viz? Checkout a <a href="#/demo">demo</a> with a sample dataset.
-  </p>
+<div class="alert alert-danger" role="alert" ng-hide="errorMsgHide" class="ng-hide">
+  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+  <span class="sr-only">Error:</span>
+  <spam ng-bind-html="errorMsg"></span>
+</div>
+
+<div class="jumbotron" id="mainPage">
+  <h1>Visualize your <a href="https://getpocket.com" target="_blank"><i class="icon-pocket"></i>Pocket</a> reading patterns.</h1>
+  <p class="lead">{{ leadTxt }}<a class="btn btn-primary btn-large" href="" id="authBtn" ng-click="go()">{{ btnText }}</a></p>
+</div>
+
+<div class="row clearfix" id="mainPageBlocks">
+  <div class="col-md-4 column">
+    <h2><span class="glyphicon glyphicon-stats" aria-hidden="true"></span> Demo</h2>
+    <p>Don't have a Pocket account but curious about this viz? Checkout a <a href="#/demo">demo</a> with a sample dataset.</p>
+  </div>
+  <div class="col-md-4 column">
+    <h2><span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> Best viewed</h2>
+    <p>With a <a href="http://browsehappy.com/" target="_blank">modern</a> browser and a fully-filled pocket account!</p>
+  </div>
+  <div class="col-md-4 column">
+    <h2><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Feedback</h2>
+    <p>Willing to lend a hand? Fill out <a href="https://docs.google.com/forms/d/1QtzgDadlkSW-QovNXqoEIwIfDeKxqEpDjkrSLKwnDuQ/viewform?usp=send_form" target="_blank">this</a> feedback questionnaire.</p>
+  </div>
 </div>

@@ -1,5 +1,5 @@
 /*jshint unused: vars */
-define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/main', 'controllers/login', 'controllers/viz', 'controllers/stats', 'controllers/demo']/*deps*/, function (angular, $, bootstrap, NavbarCtrl, MainCtrl, LoginCtrl, VizCtrl, StatsCtrl, DemoCtrl)/*invoke*/ {
+define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/main', 'controllers/login', 'controllers/viz', 'controllers/stats', 'controllers/demo', 'services/pocketdata']/*deps*/, function (angular, $, bootstrap, NavbarCtrl, MainCtrl, LoginCtrl, VizCtrl, StatsCtrl, DemoCtrl, PocketdataService)/*invoke*/ {
   'use strict';
 
   // General setup for app
@@ -10,21 +10,22 @@ define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/mai
 
   /**
    * @ngdoc overview
-   * @name pocketvizApp
+   * @name ReadFlowsApp
    * @description
-   * # pocketvizApp
+   * # ReadFlowsApp
    *
    * Main module of the application.
    */
   return angular
-  .module('pocketvizApp', [
-    'pocketvizApp.controllers.MainCtrl',
-    'pocketvizApp.controllers.NavbarCtrl',
-    'pocketvizApp.controllers.LoginCtrl',
-    'pocketvizApp.controllers.VizCtrl',
-    'pocketvizApp.controllers.StatsCtrl',
-    'pocketvizApp.controllers.DemoCtrl',
-/*angJSDeps*/
+  .module('ReadFlowsApp', [
+    'ReadFlowsApp.controllers.MainCtrl',
+    'ReadFlowsApp.controllers.NavbarCtrl',
+    'ReadFlowsApp.controllers.LoginCtrl',
+    'ReadFlowsApp.controllers.VizCtrl',
+    'ReadFlowsApp.controllers.StatsCtrl',
+    'ReadFlowsApp.controllers.DemoCtrl',
+    'ReadFlowsApp.services.Pocketdata',
+    /*angJSDeps*/
     'ngCookies',
     'ngAria',
     'ngMessages',
@@ -32,7 +33,8 @@ define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/mai
     'ngSanitize',
     'ngRoute',
     'ngAnimate',
-    'ngTouch'
+    'ngTouch',
+    'pouchdb'
   ])
   .config(function ($routeProvider) {
     $routeProvider

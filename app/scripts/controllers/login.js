@@ -1,48 +1,93 @@
-define(['angular', 'pocket-api'], function (angular, pocket) {
+define(['angular', 'jquery', 'moment'], function (angular, $, moment) {
   'use strict';
 
   /**
    * @ngdoc function
-   * @name pocketvizApp.controller:LoginCtrl
+   * @name ReadFlowsApp.controller:LoginCtrl
    * @description
    * # LoginCtrl
-   * Controller of the pocketvizApp
+   * Controller of the ReadFlowsApp
    */
-  angular.module('pocketvizApp.controllers.LoginCtrl', [])
-  .controller('LoginCtrl', function ($scope) {
-    var requestToken = $.cookie('requestToken'),
-        accessToken = $.cookie('accessToken');
+  angular.module('ReadFlowsApp.controllers.LoginCtrl', [])
+  .controller('LoginCtrl', function ($scope, $cookies, $location, Pocketdata) {
 
-    $scope.message = 'Authorizing you with Pocket...';
+    // Init $scope stuff
+    $scope.errorMsgHide = true;
+    $scope.btnHide = true;
+    $scope.steps = [];
+    $scope.message = '';
 
-    // Check authentication status
-    if(!requestToken && !accessToken) {               // If there is no requestToken and no accessToken
+    // Check for requestToken. If missing go back to the authentication.
+    if(!$cookies.requestToken) {
       $scope.message = 'You need to authenticate with Pocket first. Redirecting back home...';
-      window.location.hash = "/";                     // go back to /
+      $location.path('/');
       return;
     }
 
-    if(requestToken && !accessToken) {                // if there is a requestToken but no accessToken
-      // then get access token
-      pocket.getAccessToken(requestToken, function (err, response) {
-        // TODO handle error
-        $scope.message = 'Loading read list...';
-        if(DEBUG) console.log('Retrieved and using accessToken: '+response.access_token);
-        pocket.getReadsList(response.access_token, function (err) {
-          // TODO handle error
-          window.location.hash = "/viz";
+    // Check for lastUpdate and skip to stats if already updated less than 1hr ago
+    if(!DEBUG && $cookies.lastUpdate && $cookies.lastUpdate > moment().unix()-3600) {
+      $scope.message = 'Your reading list was already updated less than 1hr ago. Please do not update more than once an hour.';
+      $location.path('/stats');
+      return;
+    }
+
+    // Create function to check for accessToken and get one if one is not available
+    var checkAccessToken = function (callback) {
+      if(!$cookies.accessToken) {
+        $scope.message = 'Authorizing with Pocket';
+        Pocketdata.getAccessToken($cookies.requestToken, function (err, response) {
+          if (err) {
+            if(DEBUG) console.log('Failed: '+response);
+            $scope.errorMsgHide = false;
+            $scope.errorMsg = 'There was a problem authorizing with Pocket. Please make sure you\'ve authorized this app in your settings.';
+            $scope.message = 'Authorizing with pocket failed.';
+            return;
+          }
+          callback();
+        });
+      } else {
+        callback();
+      }
+    }
+
+    // Check for accessToken
+    checkAccessToken(function(){
+      Pocketdata.hasData(function (state) {
+        if ($scope.message) $scope.steps.push($scope.message);
+        $scope.message = state ? 'Updating your latest reading data from Pocket.' : 'Retrieving your reading list from Pocket.';
+        Pocketdata.getReadsList($cookies.accessToken, function (err, data) {
+          if (err) {  // handle error
+            if(DEBUG) console.log('Failed getting reading list: '+err);
+            $scope.errorMsgHide = false;
+            $scope.errorMsg = 'There was a problem loading data from Pocket.';
+            $scope.message = 'Loading data from Pocket failed.';
+            return;
+          }
+          $scope.steps.push($scope.message);
+          $scope.steps.push('Some items were already stored locally in your browser. Updates were fetched from the Pocket API.');
+          $scope.message = 'Processing your data...';
+          Pocketdata.processData(function () {
+            $scope.steps.push($scope.message);
+            $scope.message = '';
+            $scope.btnHide = false;
+            $scope.btnText = 'Continue...'
+            $scope.go = function () {
+              $('#userMenu').removeClass('hidden');
+              $location.path('/stats');
+              if(!$scope.$$phase) $scope.$apply()
+            }
+            var countdown = 5,
+                timeout = window.setInterval(function () {
+                  countdown -= 1;
+                  $scope.btnText = 'Continue... ('+countdown+')';
+                  if (countdown <= 0) {
+                    window.clearInterval(timeout);
+                    $scope.go();
+                  }
+                }, 1000);
+          });
         });
       });
-    }
-
-    if (accessToken) {                                // If we have an accessToken already
-      $scope.message = 'Loading read list...';
-      console.log('Using existing accessToken: '+accessToken);
-      pocket.getReadsList(accessToken, function (err) {
-        // TODO handle error
-        window.location.hash = "/viz";
-      });
-    }
-
+    });
   });
 });

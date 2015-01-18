@@ -1,6 +1,48 @@
-<div class="jumbotron">
-  <p class="lead">
-    Under construciton...<br />
-    <a href="#/">Go back</a>
-  </p>
+<div class="container">
+  <div class="row clearfix">
+    <div class="col-md-8 column">
+      <div class="jumbotron">
+        Histogram by date with focus & context
+      </div>
+      <div class="jumbotron">
+        Pie chart of article vs video vs image
+      </div>
+      <div class="jumbotron">
+        Pie chart of favourite vs non favourite
+      </div>
+      <div class="jumbotron">
+        Bubble chart of domains.
+      </div>
+    </div>
+    <div class="col-md-4 column">
+      <div class="jumbotron">
+        <a href="#/viz">
+          <div class="patternsButton">
+            <a class="patternsLink">View your reading patterns.</a>
+          </div>
+        </a>
+      </div>
+      <div class="jumbotron statistics">
+        <h3>Your reading stats:</h3>
+        <p><strong>Maximum number of articles added in a day:</strong><br />
+          {{ stats.adds.maxPerDay | number:0 }} articles added on {{ stats.adds.maxDay | date:'dd MMM yyyy' }}
+        </p>
+        <p><strong>Maximum number of articles read in a day:</strong><br />
+          {{ stats.reads.maxPerDay | number:0 }} articles read on {{ stats.reads.maxDay | date:'dd MMM yyyy' }}
+        </p>
+        <p><strong>Longest article (in words):</strong><br />
+          {{ stats.longestRead.word_count | number:0 }} words in article: <a href="{{ stats.longestRead.resolved_url }}">{{ stats.longestRead.resolved_title }}</a>
+        </p>
+        <p><strong>Average article length:</strong><br />
+          {{ stats.words.averageLength | number:0 }} words.
+        </p>
+        <p><strong>First day in your reading history:</strong><br />
+          {{ stats.startTimestamp*1000 | date:'dd MMM yyyy' }}
+        </p>
+        <p><strong>Total number of words read:</strong><br />
+          {{ stats.totalWords | number:0 }}
+        </p>
+      </div>
+    </div>
+  </div>
 </div>
