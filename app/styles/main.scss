@@ -106,10 +106,9 @@ body {
   background-size: cover;
   height: 100%;
   width: 100%;
-  overflow-y: hidden;
 }
 #socialShare {
-  position: absolute;
+  position: fixed;
   bottom: 8px;
   right: 25px;
   font-size: 30px;
@@ -426,4 +425,28 @@ body {
   margin: -4px 0 0 -1px;
   top: 50%;
   left: 100%;
+}
+
+
+/* STATS VIZ */
+div.statistics {
+  p {
+    font-size: 14px;
+  }
+}
+div.patternsButton {
+  position: relative;
+  background: top left no-repeat url('../images/ReadingPatterns.png');
+  cursor: pointer;
+  height: 162px;
+
+  a.patternsLink {
+    padding: 1px 1em;
+    color: #fff;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    display: block;
+    background-color: rgba(57, 57, 57, 0.6);
+  }
 }
