@@ -22,6 +22,13 @@ define(['angular', 'jquery', 'moment', 'lodash', 'd3', 'd3-tip', 'jquery-mousewh
     var data = Pocketdata.getData(),
         stats = Pocketdata.getStats();
 
+    // Check for data and stats initialization. If empty then go to /login
+    if(_.isEmpty(data) || _.isEmpty(stats)) {
+      if(DEBUG) console.log('Pocket data not initialized.');
+      $location.path('/login');
+      return;
+    }
+
     // DEBUG
     if(DEBUG) {
       console.log('readsList: ');
@@ -253,26 +260,28 @@ define(['angular', 'jquery', 'moment', 'lodash', 'd3', 'd3-tip', 'jquery-mousewh
       d.points.p1.x        = d.points.addedRect.x+d.points.addedRect.w;
       d.points.p1.y        = d.points.addedRect.y+d.points.addedRect.h;
 
-      d.points.p2          = {};
-      d.points.p2.x        = d.points.readRect.x;
-      d.points.p2.y        = d.points.readRect.y+d.points.readRect.h;
-      d.points.p2.cx1      = d.points.p1.x+(d.points.p2.x-d.points.p1.x)/2;
-      d.points.p2.cy1      = d.points.p1.y;
-      d.points.p2.cx2      = d.points.p2.x-(d.points.p2.x-d.points.p1.x)/2;
-      d.points.p2.cy2      = d.points.p2.y;
+      // Continue only if the article is read
+      if (d.time_read != '0') {
+        d.points.p2          = {};
+        d.points.p2.x        = d.points.readRect.x;
+        d.points.p2.y        = d.points.readRect.y+d.points.readRect.h;
+        d.points.p2.cx1      = d.points.p1.x+(d.points.p2.x-d.points.p1.x)/2;
+        d.points.p2.cy1      = d.points.p1.y;
+        d.points.p2.cx2      = d.points.p2.x-(d.points.p2.x-d.points.p1.x)/2;
+        d.points.p2.cy2      = d.points.p2.y;
 
-      d.points.p3          = {};
-      d.points.p3.x        = d.points.readRect.x;
-      d.points.p3.y        = d.points.readRect.y;
+        d.points.p3          = {};
+        d.points.p3.x        = d.points.readRect.x;
+        d.points.p3.y        = d.points.readRect.y;
 
-      d.points.p4          = {};
-      d.points.p4.x        = d.points.addedRect.x + d.points.readRect.w;
-      d.points.p4.y        = d.points.addedRect.y;
-      d.points.p4.cx1      = d.points.p4.x+(d.points.p3.x-d.points.p4.x)/2;
-      d.points.p4.cy1      = d.points.p3.y;
-      d.points.p4.cx2      = d.points.p4.x+(d.points.p3.x-d.points.p4.x)/2;
-      d.points.p4.cy2      = d.points.p4.y;
-
+        d.points.p4          = {};
+        d.points.p4.x        = d.points.addedRect.x + d.points.readRect.w;
+        d.points.p4.y        = d.points.addedRect.y;
+        d.points.p4.cx1      = d.points.p4.x+(d.points.p3.x-d.points.p4.x)/2;
+        d.points.p4.cy1      = d.points.p3.y;
+        d.points.p4.cx2      = d.points.p4.x+(d.points.p3.x-d.points.p4.x)/2;
+        d.points.p4.cy2      = d.points.p4.y;
+      }
       return d;
     });
 
@@ -293,9 +302,12 @@ define(['angular', 'jquery', 'moment', 'lodash', 'd3', 'd3-tip', 'jquery-mousewh
              .attr("d", function (d) {    // the d3 line function does not help in this case so we generate the d attr directly here
                var dStr = '';             // build the string
                dStr += 'M ' + d.points.p1.x   + ',' + d.points.p1.y   + ' ';
-               dStr += 'C ' + d.points.p2.cx1 + ',' + d.points.p2.cy1 + ' ' + d.points.p2.cx2 + ',' + d.points.p2.cy2 + ' ' + d.points.p2.x + ',' + d.points.p2.y + ' ';
-               dStr += 'L ' + d.points.p3.x   + ',' + d.points.p3.y   + ' ';
-               dStr += 'C ' + d.points.p4.cx1 + ',' + d.points.p4.cy1 + ' ' + d.points.p4.cx2 + ',' + d.points.p4.cy2 + ' ' + d.points.p4.x + ',' + d.points.p4.y + ' ';
+               // Proceed only if d is read
+               if (d.time_read != '0') {
+                 dStr += 'C ' + d.points.p2.cx1 + ',' + d.points.p2.cy1 + ' ' + d.points.p2.cx2 + ',' + d.points.p2.cy2 + ' ' + d.points.p2.x + ',' + d.points.p2.y + ' ';
+                 dStr += 'L ' + d.points.p3.x   + ',' + d.points.p3.y   + ' ';
+                 dStr += 'C ' + d.points.p4.cx1 + ',' + d.points.p4.cy1 + ' ' + d.points.p4.cx2 + ',' + d.points.p4.cy2 + ' ' + d.points.p4.x + ',' + d.points.p4.y + ' ';
+               }
                dStr += 'z';
                return dStr;
              })
