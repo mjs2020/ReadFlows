@@ -120,11 +120,12 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
           state.dbDocs = _.map(response.rows, function (v, i, c) {
             return v.doc;
           });
-          state.finalCount = response.total_rows-1;
+          state.finalCount = response.total_rows;
           if(DEBUG) console.log('Number of documents in the local DB after update: '+state.finalCount);
           delete state.newData;
           delete state.since;
 
+          data = state.dbDocs;
           callback(null, state)
         })
 
@@ -150,10 +151,12 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
     this._computeStats = function () {
       var localStats = {                        // Init stats on running of the processData method
         adds : {
-          maxPerDay: 0
+          maxPerDay: 0,
+          maxDay: ''
         },
         reads : {
-          maxPerDay: 0
+          maxPerDay: 0,
+          maxDay: ''
         },
         words : {
           maxAddedPerDay : 0,
@@ -162,7 +165,10 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
           modeLength : 0
         },
         totalWords : 0,
-        longestRead : 0,
+        longestRead : {
+          word_count: 0,
+          resolved_title: ''
+        },
         shortestRead : 0,
         startTimestamp : moment().unix(),
         endTimestamp : moment().unix(),
@@ -198,12 +204,20 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
         if (d.dayReadId) localStats.daysReadCounter[d.dayReadId].counter += 1;
         localStats.daysAddedCounter[d.dayAddedId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
         if (d.dayReadId) localStats.daysReadCounter[d.dayReadId].words += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
-        localStats.adds.maxPerDay = Math.max(localStats.adds.maxPerDay, localStats.daysAddedCounter[d.dayAddedId].counter);
+        if (localStats.adds.maxPerDay < localStats.daysAddedCounter[d.dayAddedId].counter) {
+          localStats.adds.maxPerDay = localStats.daysAddedCounter[d.dayAddedId].counter;
+          localStats.adds.maxDay = d.day_added*1000;
+        }
         localStats.words.maxAddedPerDay = Math.max(localStats.words.maxAddedPerDay, localStats.daysAddedCounter[d.dayAddedId].words);
-        if (d.dayReadId) localStats.reads.maxPerDay = Math.max(localStats.reads.maxPerDay, localStats.daysReadCounter[d.dayReadId].counter);
+        if (d.dayReadId && localStats.reads.maxPerDay < localStats.daysReadCounter[d.dayReadId].counter) {
+          localStats.reads.maxPerDay = localStats.daysReadCounter[d.dayReadId].counter;
+          localStats.reads.maxDay = d.day_read*1000;
+        }
         if (d.dayReadId) localStats.words.maxReadPerDay = Math.max(localStats.words.maxReadPerDay, localStats.daysReadCounter[d.dayReadId].words);
         localStats.totalWords += (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0);
-        localStats.longestRead = Math.max(localStats.longestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
+        if(_.parseInt(d.word_count) && localStats.longestRead.word_count < _.parseInt(d.word_count)) {
+          localStats.longestRead = d;
+        }
         localStats.shortestRead = Math.min(localStats.shortestRead, (_.parseInt(d.word_count) ? _.parseInt(d.word_count) : 0));
         if (_.parseInt(d.word_count)) localStats.wordLengths.push(_.parseInt(d.word_count));
 
@@ -242,10 +256,15 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
 
       // Iterate through data and remove any reads that have dayAddedId matching any value in stats.excludeDays
       if (localStats.excludeDays.length > 0) {
+        var counter = 0;
         data = _.filter(data, function (d, k, o) {
-          return !_.contains(localStats.excludeDays,d.dayAddedId);
-        },this);
-
+          if (!_.contains(localStats.excludeDays,d.dayAddedId)) {
+            counter++
+            return true;
+          }
+          return false;
+        });
+        if (DEBUG) console.log('Detected and removed '+counter+' outliers which would distort the visualization. These are likely mass imports from ReadItLater or similar services.');
         // Then recompute stats
         this._computeStats();
       }
