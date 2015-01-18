@@ -437,14 +437,13 @@ div.statistics {
 div.patternsButton {
   position: relative;
   background: top left no-repeat url('../images/ReadingPatterns.png');
-  cursor: pointer;
   height: 162px;
 
   a.patternsLink {
     padding: 1px 1em;
     color: #fff;
     position: absolute;
-    bottom: 0;
+    bottom: 10px;
     right: 0;
     display: block;
     background-color: rgba(57, 57, 57, 0.6);
