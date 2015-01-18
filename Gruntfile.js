@@ -503,7 +503,7 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
-      'modernizr:dist',
+      //'modernizr:dist',
       'wiredep',
       'concurrent:server',
       'autoprefixer',
@@ -519,7 +519,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('test', [
     'clean:server',
-    'modernizr:dist',
+    //'modernizr:dist',
     'bower:app',
     'replace:test',
     'concurrent:test',
