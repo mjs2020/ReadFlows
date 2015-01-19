@@ -1,4 +1,4 @@
-define(['angular', 'lodash', 'd3', 'dc', 'crossfilter', 'd3-tip'], function (angular, _) {
+define(['angular', 'lodash', 'd3', 'dcjs', 'crossfilter', 'd3-tip'], function (angular, _, d3, dc, crossfilter) {
   'use strict';
 
   /**

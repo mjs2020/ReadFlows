@@ -38,9 +38,8 @@ requirejs.config({
     pouchdb: '../../bower_components/pouchdb/dist/pouchdb',
     'angular-pouchdb': '../../bower_components/angular-pouchdb/dist/angular-pouchdb',
     modernizr: '../../bower_components/modernizr/modernizr',
-    dc: '../../bower_components/dcjs/dc',
-    crossfilter: '../../bower_components/crossfilter/crossfilter',
-    dcjs: '../../bower_components/dcjs/dc'
+    dcjs: '../../bower_components/dcjs/dc',
+    crossfilter: '../../bower_components/crossfilter/crossfilter'
   },
 
     shim: {
