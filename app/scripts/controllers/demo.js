@@ -9,7 +9,18 @@ define(['angular'], function (angular) {
    * Controller of the ReadFlowsApp
    */
   angular.module('ReadFlowsApp.controllers.DemoCtrl', [])
-    .controller('DemoCtrl', function ($scope) {
-      // TODO setup demo using static SVG, appropriately anonymized, perhaps?
+    .controller('DemoCtrl', function ($scope, $cookies, $location, Pocketdata) {
+      // check for data
+      if (Pocketdata.getData().lenght > 0) {
+        if (DEBUG) console.log('There was an error fetching data.');
+      } else {
+        Pocketdata.getDemoList(function (err) {
+          if (DEBUG && err) console.log(err);
+          if (DEBUG) console.log('Got demo data json.');
+          Pocketdata.processData(function () {
+            $location.path('/stats');
+          });
+        });
+      }
     });
 });

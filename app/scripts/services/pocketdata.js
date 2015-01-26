@@ -16,6 +16,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
 
     // Create or open the DB
     var DB    = pouchDB('ReadFlows.readsdb'),
+        demo  = false,
         data  = [],
         stats = {};
 
@@ -37,6 +38,14 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
           if(DEBUG) console.log('Error while trying to get info on the db');
           callback(false);
         })
+    }
+
+    this.getDemo = function () {
+      return demo;
+    }
+
+    this.setDemo = function (value) {
+      demo = value;
     }
 
     this.getRequestToken = function(callback) {
@@ -126,6 +135,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
           delete state.since;
 
           data = state.dbDocs;
+          demo = false;
           callback(null, state)
         })
 
@@ -144,8 +154,16 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
       callback();
     }
 
-    this.getDemoList = function () {
-
+    this.getDemoList = function (callback) {
+      $http.get(baseUrl+'data.demo.json')
+           .success(function(response, status, headers, config) {
+             data = response;
+             demo = true;
+             callback(null)
+           })
+           .error(function(response, status, headers, config) {
+             callback(status)
+           })
     }
 
     this._computeStats = function () {
