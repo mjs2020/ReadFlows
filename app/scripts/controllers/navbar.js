@@ -9,11 +9,13 @@ define(['angular', 'jquery', 'bootstrap', 'text!../../views/about.html', 'text!.
    * Controller of the ReadFlowsApp
    */
   angular.module('ReadFlowsApp.controllers.NavbarCtrl', [])
-  .controller('NavbarCtrl', function ($scope) {
+  .controller('NavbarCtrl', function ($scope, Pocketdata) {
+
     $('#navbarModal').modal({
       keyboard: false,
       show: false
     });
+
     $scope.openModal = function (modal) {
       $scope.modalTitle = modal;
       switch(modal) {
@@ -29,5 +31,16 @@ define(['angular', 'jquery', 'bootstrap', 'text!../../views/about.html', 'text!.
       }
       $('#navbarModal').modal('show')
     };
+
+    $scope.clearData = function () {
+      $scope.modalTitle = 'Clear local data'
+      $('#navbarModal').modal('show')
+      $scope.modalBody = 'Clearing your locally stored data...'
+      Pocketdata.clearDB(function () {
+        $scope.modalBody = 'Clearing your locally stored data... Done!'
+        $scope.$apply();
+      });
+    }
+
   });
 });

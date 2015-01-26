@@ -17,7 +17,6 @@ define(['angular'], function (angular) {
     }, 500);
   };
 
-
   /**
    * @ngdoc function
    * @name ReadFlowsApp.controller:MainCtrl
@@ -78,4 +77,5 @@ define(['angular'], function (angular) {
 
     }
   });
+
 });

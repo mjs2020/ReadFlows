@@ -18,6 +18,7 @@ define(['angular'], function (angular) {
           if (DEBUG && err) console.log(err);
           if (DEBUG) console.log('Got demo data json.');
           Pocketdata.processData(function () {
+            $('#userMenu').removeClass('hidden');
             $location.path('/stats');
           });
         });

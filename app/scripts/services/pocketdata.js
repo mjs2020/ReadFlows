@@ -18,7 +18,8 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
     var DB    = pouchDB('ReadFlows.readsdb'),
         demo  = false,
         data  = [],
-        stats = {};
+        stats = {},
+        that  = this;
 
     // API Methods
     this.getData = function(){
@@ -148,22 +149,45 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
 
     this.processData = function (callback) {
 
+      this._validateData();
       this._computeStats();
-      this._filterOutliers();
 
-      callback();
+      if(!demo) {
+        this._filterOutliers(function () {
+          callback();
+        });
+      } else {
+        callback();
+      }
     }
 
     this.getDemoList = function (callback) {
       $http.get(baseUrl+'data.demo.json')
            .success(function(response, status, headers, config) {
-             data = response;
+             data = response.list;
              demo = true;
              callback(null)
            })
            .error(function(response, status, headers, config) {
              callback(status)
            })
+    }
+
+    this.clearDB = function(callback) {
+      DB.destroy(function(err, info) {
+        if (DEBUG && err) console.log('Error clearing the local data. '+err)
+        delete $cookies['lastUpdate'];
+        DB = pouchDB('ReadFlows.readsdb'),
+        callback();
+      });
+    }
+
+    this._validateData = function () {
+      data = _.filter(data, function (v,k,c) {
+        var valid = true;
+        if (v.day_read && _.parseInt(v.day_read) < _.parseInt(v.day_added)) valid = false;
+        return valid;
+      })
     }
 
     this._computeStats = function () {
@@ -254,7 +278,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
       stats = localStats;
     }
 
-    this._filterOutliers = function () {
+    this._filterOutliers = function (callback) {
       var localStats = stats;             // Create a local instance of stats.
 
       // Do some statistics and filter out any outliers (basically batch additions for users who converted from readitlater to pocket)
@@ -274,19 +298,46 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
 
       // Iterate through data and remove any reads that have dayAddedId matching any value in stats.excludeDays
       if (localStats.excludeDays.length > 0) {
-        var counter = 0;
+        var counter = 0,
+            keysToDelete = [];
         data = _.filter(data, function (d, k, o) {
           if (!_.contains(localStats.excludeDays,d.dayAddedId)) {
+            keysToDelete.push(d._id);
             counter++
             return true;
           }
           return false;
         });
-        if (DEBUG) console.log('Detected and removed '+counter+' outliers which would distort the visualization. These are likely mass imports from ReadItLater or similar services.');
-        // Then recompute stats
-        this._computeStats();
+        this._cleanDocsFromDB(keysToDelete, function () {
+          callback();
+        })
+      } else {
+        callback();
       }
+    }
 
+    this._cleanDocsFromDB = function (keysToDelete, callback) {
+      DB.allDocs({keys: keysToDelete})
+          .then(function (response) {
+            var docsToDelete = response.rows;
+            docsToDelete = _.map(docsToDelete, function (v, k, c) {
+              v._id = v.id;
+              v._rev = v.value.rev;
+              v._deleted = true;
+              return v;
+            })
+            return DB.bulkDocs(docsToDelete)
+          })
+          .then(function (response) {
+            if (DEBUG) console.log('Detected and removed '+response.length+' outliers which would distort the visualization. These are likely mass imports from ReadItLater or similar services.');
+            that._computeStats();
+            callback();
+          })
+          .catch(function (error) {
+            if (DEBUG) console.log('There was an error deleting outlier docs from the DB.');
+            that._computeStats();
+            callback();
+          });
     }
 
   });

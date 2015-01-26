@@ -12,7 +12,7 @@ define(['angular', 'jquery', 'moment', 'lodash', 'd3', 'd3-tip', 'jquery-mousewh
   .controller('VizCtrl', function ($scope, $cookies, $location, Pocketdata) {
 
     // Check for lastUpdate. If not present then go to /login
-    if(!$cookies.lastUpdate) {
+    if(!$cookies.lastUpdate && !Pocketdata.getDemo()) {
       if(DEBUG) console.log('No update, go back to /login.');
       $location.path('/login');
       return;
