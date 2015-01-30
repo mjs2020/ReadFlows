@@ -28,7 +28,8 @@ require.config({
     modernizr: '../../bower_components/modernizr/modernizr',
     dc: '../../bower_components/dcjs/dc',
     crossfilter: '../../bower_components/crossfilter/crossfilter',
-    'angular-dc': '../../bower_components/angular-dc/dist/angular-dc'
+    'angular-dc': '../../bower_components/angular-dc/dist/angular-dc',
+    dcjs: '../../bower_components/dcjs/dc'
   },
   shim: {
     angular: {
@@ -74,8 +75,10 @@ require.config({
         'd3'
       ]
     },
-    'crossfilter': {
-      deps: [],
+    crossfilter: {
+      deps: [
+
+      ],
       exports: 'crossfilter'
     },
     'simple-statistics': {
@@ -90,7 +93,7 @@ require.config({
         'pouchdb'
       ]
     },
-    'dc': {
+    dc: {
       deps: [
         'crossfilter'
       ]

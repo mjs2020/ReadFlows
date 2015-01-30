@@ -3,6 +3,7 @@ define(['angular'], function (angular) {
   // For development only:
   var baseUrl = 'http://play.fm.to.it/ReadFlows/';
 
+  console.log('going to main');
   // Oauthpopup
   var oauthpopup = function(options) {
     options.windowName = options.windowName ||  'ConnectWithOAuth'; // should not include space for IE
