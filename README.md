@@ -6,7 +6,7 @@ A tool for visualizing reading data fron a user's [Pocket app](http://www.getpoc
 
 ## Demo
 
-Use a demo at (currently not public)
+Use a demo at http://play.fm.to.it/ReadFlows
 
 ## Installation
 
