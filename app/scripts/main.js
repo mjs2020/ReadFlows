@@ -26,8 +26,9 @@ require.config({
     pouchdb: '../../bower_components/pouchdb/dist/pouchdb',
     'angular-pouchdb': '../../bower_components/angular-pouchdb/dist/angular-pouchdb',
     modernizr: '../../bower_components/modernizr/modernizr',
-    dcjs: '../../bower_components/dcjs/dc',
-    crossfilter: '../../bower_components/crossfilter/crossfilter'
+    dc: '../../bower_components/dcjs/dc',
+    crossfilter: '../../bower_components/crossfilter/crossfilter',
+    'angular-dc': '../../bower_components/angular-dc/dist/angular-dc'
   },
   shim: {
     angular: {
@@ -73,6 +74,10 @@ require.config({
         'd3'
       ]
     },
+    'crossfilter': {
+      deps: [],
+      exports: 'crossfilter'
+    },
     'simple-statistics': {
       exports: 'ss'
     },
@@ -83,6 +88,17 @@ require.config({
       deps: [
         'angular',
         'pouchdb'
+      ]
+    },
+    'dc': {
+      deps: [
+        'crossfilter'
+      ]
+    },
+    'angular-dc': {
+      deps: [
+        'angular',
+        'dc'
       ]
     }
   },
@@ -108,9 +124,10 @@ require([
   'angular-touch',
   'angular-aria',
   'angular-messages',
+  'angular-dc',
   'angular-pouchdb',
   'pouchdb'
-], function(angular, app, ngRoutes, ngCookies, ngSanitize, ngResource, ngAnimate, ngTouch, ngAria, ngMessages, pouchdb, PouchDB) {
+], function(angular, app, ngRoutes, ngCookies, ngSanitize, ngResource, ngAnimate, ngTouch, ngAria, ngMessages, angularDc, pouchdb, PouchDB) {
   'use strict';
 
   /* jshint ignore:start */

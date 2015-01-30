@@ -33,6 +33,7 @@ define(['angular', 'jquery', 'bootstrap', 'controllers/navbar', 'controllers/mai
     'ngSanitize',
     'ngRoute',
     'ngAnimate',
+    'angularDc',
     'ngTouch',
     'pouchdb'
   ])
