@@ -19,6 +19,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
         demo  = false,
         data  = [],
         stats = {},
+        state = {},
         that  = this;
 
     // API Methods
@@ -74,8 +75,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
     this.getReadsList = function(accessToken, callback) {
       if(typeof accessToken === 'undefined') callback('Undefined accessToken');
 
-      var url = baseUrl+'proxy.php?a=getReadsList&accessToken='+accessToken,
-          state = {};
+      var url = baseUrl+'proxy.php?a=getReadsList&accessToken='+accessToken;
 
       if(DEBUG) console.log('Initiated get read list procedure');
 
@@ -94,7 +94,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
             if(DEBUG) console.log('There was no lastUpdate stored so we are fetching all documents from PocketAPI');
           }
 
-          if(DEBUG) console.log('Going to call: '+url);
+          if(DEBUG) console.log('Calling: '+url);
           return $http.get(url);
         })
 
@@ -102,7 +102,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
           state.newData = _.toArray(response.data.list);
           state.addedItems = state.newData.length;
           state.since = response.data.since;
-          if(DEBUG) console.log('Data was received from the PocketAPI through the proxy. '+state.addedItems+' items were received.');
+          if(DEBUG) console.log(''+state.addedItems+' items were received from the PocketAPI.');
 
           // Add _id and _rev to all the newData items before injecting them so that existing docs update correctly.
           state.newData = _.map(state.newData, function (apiDoc, k , c) {
@@ -114,6 +114,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
                             });
                             return apiDoc;
                           });
+          if(DEBUG) console.log('Inserting items into local DB...');
           return DB.bulkDocs(state.newData);          // Return promise with injection into pouchdb
         }, function error (response) {
           if(DEBUG) console.log('There was an error in the HTTP request to get data.');
@@ -152,11 +153,13 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
       this._validateData();
       this._computeStats();
 
-      if(!demo) {
+      if(!demo && state.initialCount == 0) {
+        if(DEBUG) console.log('Going to check for outliers in the data.');
         this._filterOutliers(function () {
           callback();
         });
       } else {
+        if(DEBUG) console.log('Skipping outliers check.');
         callback();
       }
     }
@@ -271,6 +274,13 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
       localStats.startTime = new Date(localStats.startTimestamp*1000);
       localStats.endTime   = new Date(localStats.endTimestamp*1000);
 
+      // Calculate average number of words and articles read per day
+      localStats.avgWordsPerDay = localStats.totalWords/moment.duration(localStats.endTimestamp-localStats.startTimestamp, 'seconds').asDays();
+      localStats.avgReadsPerDay = data.length/moment.duration(localStats.endTimestamp-localStats.startTimestamp, 'seconds').asDays()
+
+      // Add total number of articles
+      localStats.totalArticles = data.length;
+
       // Compute word length stats
       localStats.words.averageLength = ss.mean(localStats.wordLengths);
       localStats.words.modeLength = ss.mode(localStats.wordLengths);
@@ -298,16 +308,16 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
 
       // Iterate through data and remove any reads that have dayAddedId matching any value in stats.excludeDays
       if (localStats.excludeDays.length > 0) {
-        var counter = 0,
-            keysToDelete = [];
+        var keysToDelete = [];
         data = _.filter(data, function (d, k, o) {
-          if (!_.contains(localStats.excludeDays,d.dayAddedId)) {
+          if (_.contains(localStats.excludeDays,d.dayAddedId)) {
             keysToDelete.push(d._id);
-            counter++
+            return false;
+          } else {
             return true;
           }
-          return false;
         });
+        if (DEBUG) console.log('Detected '+keysToDelete.length+' outliers from '+localStats.excludeDays.length+' days which would distort the visualization. These are likely mass imports from ReadItLater or similar services.')
         this._cleanDocsFromDB(keysToDelete, function () {
           callback();
         })
@@ -329,7 +339,7 @@ define(['angular', 'pouchdb', 'lodash', 'moment', 'simple-statistics'], function
             return DB.bulkDocs(docsToDelete)
           })
           .then(function (response) {
-            if (DEBUG) console.log('Detected and removed '+response.length+' outliers which would distort the visualization. These are likely mass imports from ReadItLater or similar services.');
+            if (DEBUG) console.log('Removed '+response.length+' outliers from DB.');
             that._computeStats();
             callback();
           })
