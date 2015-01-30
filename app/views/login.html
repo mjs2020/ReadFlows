@@ -9,7 +9,7 @@
     <li ng-repeat="step in steps"><i class="glyphicon glyphicon-ok"></i> {{ step }}</li>
   </ul>
   <p>
-    <img src="images/rings.svg" alt="Loading image" /> {{ message }}
+    <img src="images/rings.svg" alt="Loading image" ng-hide="!btnHide" /> {{ message }}
   </p>
   <a class="btn btn-primary btn-large ng-hide" href="" ng-hide="btnHide" id="continueBtn" ng-click="go()">{{ btnText }}</a>
 </div>

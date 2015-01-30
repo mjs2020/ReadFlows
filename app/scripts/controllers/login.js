@@ -61,7 +61,7 @@ define(['angular', 'jquery', 'moment'], function (angular, $, moment) {
           $scope.message = 'Processing your data...';
           Pocketdata.processData(function () {
             $scope.steps.push($scope.message);
-            $scope.message = '';
+            $scope.message = 'Done!';
             $scope.btnHide = false;
             $scope.btnText = 'Continue...'
             $scope.go = function () {
@@ -73,6 +73,7 @@ define(['angular', 'jquery', 'moment'], function (angular, $, moment) {
                 timeout = window.setInterval(function () {
                   countdown -= 1;
                   $scope.btnText = 'Continue... ('+countdown+')';
+                  $scope.$apply();
                   if (countdown <= 0) {
                     window.clearInterval(timeout);
                     $scope.go();
