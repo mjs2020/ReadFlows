@@ -428,7 +428,7 @@ body {
 }
 
 
-/* STATS VIZ */
+/* VIZ */
 div.statistics {
   p {
     font-size: 14px;
@@ -448,4 +448,19 @@ div.patternsButton {
     display: block;
     background-color: rgba(57, 57, 57, 0.6);
   }
+}
+
+
+/* STATS */
+div#favoritesPieChart {
+  float: left;
+  margin-right: 2em;
+}
+
+#domainsByNumberChart .dc-chart g.row text,
+#domainsByLengthChart .dc-chart g.row text {
+  fill: #222;
+}
+.statsPage h2 {
+  padding-top: 1em;
 }

@@ -1,19 +1,116 @@
 <div class="container">
   <div class="row clearfix">
     <div class="col-md-8 column">
-      <div class="jumbotron">
-        Histogram by date with focus & context
-      </div>
-      <div class="jumbotron">
-        Pie chart of article vs video vs image
-      </div>
-      <div class="jumbotron">
-        Pie chart of favourite vs non favourite
-      </div>
-      <div class="jumbotron">
-        Bubble chart of domains.
+      <div class="jumbotron statsPage">
+
+        <!-- Histogram by added date (by month) -->
+        <div id="addedHistogram">
+          <h2>Articles added per month</h2>
+          <div dc-chart="barChart"
+             class="dc-chart"
+             dc-dimension="addedDateDimension"
+             dc-group="addedDateGroup"
+             dc-x="xDateScaleAdded"
+             dc-centerBar="true"
+             dc-elastic-y="true"
+             dc-render-horizontal-grid-lines="true"
+             dc-post-setup-chart="addedDatePostSetupChart"
+             dc-width="620"
+             dc-height="350"
+             ></div>
+          <button type="button" class="btn btn-primary btn-xs resetBtn" ng-click="resetAll()">Reset</button>
+          <div class="clearfix"></div>
+        </div>
+
+        <!-- Histogram by read date (by month) -->
+        <div id="readHistogram">
+          <h2>Articles read per month</h2>
+          <div dc-chart="barChart"
+             class="dc-chart"
+             dc-dimension="readDateDimension"
+             dc-group="readDateGroup"
+             dc-x="xDateScaleRead"
+             dc-centerBar="true"
+             dc-elastic-y="true"
+             dc-render-horizontal-grid-lines="true"
+             dc-post-setup-chart="readDatePostSetupChart"
+             dc-width="620"
+             dc-height="350"
+             ></div>
+          <button type="button" class="btn btn-primary btn-xs resetBtn" ng-click="resetAll()">Reset</button>
+          <div class="clearfix"></div>
+        </div>
+
+        <!-- Pie chart of fav vs non favs -->
+        <div id="favoritesPieChart">
+          <h2>Favorite articles</h2>
+          <div dc-chart="pieChart"
+             dc-width="300"
+             dc-height="300"
+             dc-radius="120"
+             dc-dimension="favDimension"
+             dc-group="favGroup"
+             class="dc-chart"
+             ></div>
+          <button type="button" class="btn btn-primary btn-xs resetBtn" ng-click="resetAll()">Reset</button>
+          <div class="clearfix"></div>
+        </div>
+
+        <!-- Pie chart of read vs unread-->
+        <div id="readPieChart">
+          <h2>Unread articles</h2>
+          <div dc-chart="pieChart"
+             dc-width="300"
+             dc-height="300"
+             dc-radius="120"
+             dc-dimension="readDimension"
+             dc-group="readGroup"
+             class="dc-chart"
+             ></div>
+          <button type="button" class="btn btn-primary btn-xs resetBtn" ng-click="resetAll()">Reset</button>
+          <div class="clearfix"></div>
+        </div>
+
+        <!-- Row chart of the top 30 domains -->
+        <div id="domainsByNumberChart">
+          <h2>Top domains by number of articles</h2>
+          <div dc-chart="rowChart"
+             dc-width="620"
+             dc-height="700"
+             dc-elastic-x="true"
+             dc-cap="25"
+             dc-margins="{top: 0, right: 0, bottom: 0, left: 0}"
+             dc-dimension="domainsDimension"
+             dc-group="domainsByNumberGroup"
+             dc-ordering="domainsOrdering"
+             class="dc-chart"
+             ></div>
+          <button type="button" class="btn btn-primary btn-xs resetBtn" ng-click="resetAll()">Reset</button>
+          <div class="clearfix"></div>
+        </div>
+        <div id="domainsByLengthChart">
+          <h2>Top domains by total length of articles</h2>
+          <div dc-chart="rowChart"
+             dc-width="620"
+             dc-height="700"
+             dc-elastic-x="true"
+             dc-cap="25"
+             dc-margins="{top: 0, right: 0, bottom: 0, left: 0}"
+             dc-dimension="domainsDimension"
+             dc-group="domainsByLengthGroup"
+             dc-ordering="domainsOrdering"
+             class="dc-chart"
+             ></div>
+          <button type="button" class="btn btn-primary btn-xs resetBtn" ng-click="resetAll()">Reset</button>
+          <div class="clearfix"></div>
+        </div>
+
+
       </div>
     </div>
+
+
+
     <div class="col-md-4 column">
       <div class="jumbotron">
         <div class="patternsButton">
@@ -22,6 +119,12 @@
       </div>
       <div class="jumbotron statistics">
         <h3>Your reading stats:</h3>
+        <p><strong>Total number of articles in Pocket</strong><br />
+          {{ stats.totalArticles | number:0 }} articles collected since {{ stats.startTimestamp*1000 | date:'dd MMM yyyy' }}.
+        </p>
+        <p><strong>Total number of words read:</strong><br />
+          {{ stats.totalWords | number:0 }}
+        </p>
         <p><strong>Maximum number of articles added in a day:</strong><br />
           {{ stats.adds.maxPerDay | number:0 }} articles added on {{ stats.adds.maxDay | date:'dd MMM yyyy' }}
         </p>
@@ -34,11 +137,11 @@
         <p><strong>Average article length:</strong><br />
           {{ stats.words.averageLength | number:0 }} words.
         </p>
-        <p><strong>First day in your reading history:</strong><br />
-          {{ stats.startTimestamp*1000 | date:'dd MMM yyyy' }}
+        <p><strong>Average number of articles read per day:</strong><br />
+          {{ stats.avgReadsPerDay | number:0 }}
         </p>
-        <p><strong>Total number of words read:</strong><br />
-          {{ stats.totalWords | number:0 }}
+        <p><strong>Average number of words read per day:</strong><br />
+          {{ stats.avgWordsPerDay | number:0 }}
         </p>
       </div>
     </div>

@@ -1,4 +1,4 @@
-define(['angular', 'lodash', 'd3', 'dcjs', 'crossfilter'], function (angular, _, d3, dc, crossfilter) {
+define(['angular', 'lodash', 'd3', 'crossfilter', 'dc'], function (angular, _, d3, crossfilter, dc) {
   'use strict';
 
   /**
@@ -37,54 +37,96 @@ define(['angular', 'lodash', 'd3', 'dcjs', 'crossfilter'], function (angular, _,
         console.log(stats);
       }
 
+      // Add stats to scope in order to display them
       $scope.stats = stats;
-
-      // Create DC charts
-      var addedChart = dc.lineChart('#addedChart', 'readsGroup'),
-          readChart = dc.lineChart('#readChart', 'readsGroup'),
-          favoritesChart = dc.pieChart('#favoritesChart', 'readsGroup'),
-          domainsChart = dc.bubbleChart('#domainsChart', 'readsGroup');
-
-      // Scope reset functions
-      $scope.addedChartReset = function () {
-        addedChart.filterAll();
-        dc.redrawAll();
-      }
-      $scope.readChartReset = function () {
-        readChart.filterAll();
-        dc.redrawAll();
-      }
-      $scope.favouritesChartReset = function () {
-        favoritesChart.filterAll();
-        dc.redrawAll();
-      }
-      $scope.domainsChartReset = function () {
-        domainsChart.filterAll();
-        dc.redrawAll();
-      }
 
       // Crossfilter stuff here
       var cfData = crossfilter(data),
-          cfAll = cfData.groupAll(),
-          favDimension = cfData.dimension(function (d) {
-            return d.favorite = 1 ? "Favorites" : "All";
+          monthYear = d3.time.format("%b %Y"),
+          getDateAdded = function (d) {
+                           return new Date(d.day_added*1000);
+                         },
+          getDateRead = function (d) {
+                           return d.day_read ? new Date(d.day_read*1000) : null;
+                         },
+          addedDomainRange = d3.time.month.range(d3.time.month.offset(d3.min(data, getDateAdded), -1), d3.max(data, getDateAdded)).map(function (d) {
+            return monthYear(d);
           }),
-          favGroup = favDimension.group();
+          readDomainRange = d3.time.month.range(d3.time.month.offset(d3.min(data, getDateAdded), -1), d3.max(data, getDateAdded)).map(function (d) {
+            return monthYear(d);
+          });
+      $scope.xDateScaleAdded = d3.scale.ordinal()
+                                 .domain(addedDomainRange);
+      $scope.xDateScaleRead = d3.scale.ordinal()
+                                .domain(readDomainRange);
+      $scope.resetAll = function(){
+        dc.filterAll();
+        dc.redrawAll();
+      }
 
-      // Setup the favourites pie chart
-      favoritesChart
-        .width(250)
-        .height(250)
-        .radius(120)
-        .dimension(favDimension)
-        .group(favGroup)
-        .transitionDuration(500)
-        .colors(['#3182bd', '#6baed6'])
-        .label(function (d) {
-            return d.key;
-        })
+      // CHARTS
+      // Added by date
+      $scope.addedDateDimension = cfData.dimension(function (d) {
+        return monthYear(new Date(d.day_added*1000));
+      });
+      $scope.addedDateGroup = $scope.addedDateDimension.group();
+      $scope.addedDatePostSetupChart = function(c) {
+        c.xAxisLabel('Months');
+        c.yAxisLabel('Num of articles');
+        c.xUnits(dc.units.ordinal)
+        c.margins({ top: 10, left: 60, right: 10, bottom: 80 })
+        c.outerPadding(1)
+        c.renderlet(function(chart){
+          chart.selectAll("g.x text")
+            .attr('transform', "rotate(-65) translate(-28, -8)");
+        });
+      }
 
-        // Render charts
-        dc.renderAll();
+      // Read by date
+      $scope.readDateDimension = cfData.dimension(function (d) {
+        return d.day_read ? monthYear(new Date(d.day_read*1000)) : null;
+      });
+      $scope.readDateDimension.filter(function(date) {
+        return date != null;
+      });
+      $scope.readDateGroup = $scope.readDateDimension.group();
+      $scope.readDatePostSetupChart = function (c) {
+        c.xAxisLabel('Months');
+        c.yAxisLabel('Num of articles');
+        c.xUnits(dc.units.ordinal)
+        c.margins({ top: 10, left: 60, right: 10, bottom: 80 })
+        c.outerPadding(1)
+        c.renderlet(function(chart){
+          chart.selectAll("g.x text")
+            .attr('transform', "rotate(-65) translate(-28, -8)");
+        });
+      }
+
+      // Fav pie chart
+      $scope.favDimension = cfData.dimension(function (d) {
+        return d.favorite != "0" ? "Favorites" : "All";
+      });
+      $scope.favGroup = $scope.favDimension.group();
+
+      // Read pie chart
+      $scope.readDimension = cfData.dimension(function (d) {
+        return d.status != "0" ? "Read" : "Unread";
+      });
+      $scope.readGroup = $scope.readDimension.group();
+
+      // Domains row charts
+      $scope.domainsDimension = cfData.dimension(function (d) {
+        return d.domain;
+      });
+      $scope.domainsByNumberGroup = $scope.domainsDimension.group().reduceCount();
+      $scope.domainsByLengthGroup = $scope.domainsDimension.group().reduceSum(function (d) {
+        return _.parseInt(d.word_count);
+      });
+      $scope.domainsOrdering = function(d){return -d.value}
+
+
+
+
+
     });
 });
