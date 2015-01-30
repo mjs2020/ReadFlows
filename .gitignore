@@ -4,6 +4,7 @@ dist
 .sass-cache
 bower_components
 .brackets.json
+_RESOURCES
 app/styles/*.css
 app/styles/*.map
 app/scripts/piwik.js
